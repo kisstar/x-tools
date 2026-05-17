@@ -1,0 +1,11 @@
+# sys
+.DS_Store
+
+# log
+*.log
+
+# dependence
+node_modules
+
+# outout
+dist
