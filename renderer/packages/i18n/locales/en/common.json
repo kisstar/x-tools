@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "xTools",
+    "beta": "Beta",
+    "version": "v0.1.0"
+  },
+  "search": {
+    "placeholder": "Search tools or ask AI...",
+    "palettePlaceholder": "Search tools, run commands, or ask AI..."
+  },
+  "nav": {
+    "home": "Home",
+    "ai": "AI",
+    "files": "Files",
+    "code": "Code",
+    "image": "Image",
+    "settings": "Settings",
+    "apps": "Apps"
+  },
+  "subnav": {
+    "title": "Tools",
+    "all": "All Tools",
+    "developer": "Developer",
+    "formatters": "Formatters",
+    "converters": "Converters",
+    "encoders": "Encoders",
+    "generators": "Generators",
+    "network": "Network"
+  },
+  "toolbar": {
+    "sort": "Sort"
+  },
+  "commandPalette": {
+    "placeholder": "Search tools, run commands, or ask AI...",
+    "suggestions": "SUGGESTIONS",
+    "recent": "Recent",
+    "noResults": "No results found",
+    "askAi": "ASK AI",
+    "aiHint": "Ask AI to find the right tool for your task...",
+    "navigate": "Navigate",
+    "open": "Open"
+  },
+  "empty": {
+    "title": "Welcome to xTools",
+    "description": "Your intelligent tool workspace. Browse categories, search for tools, or ask AI to help.",
+    "browseAll": "Browse All Tools",
+    "search": "Search",
+    "popular": "POPULAR TOOLS",
+    "tools": {
+      "json": "JSON Formatter",
+      "base64": "Base64 Codec",
+      "url": "URL Encoder",
+      "hash": "Hash Generator"
+    }
+  }
+}

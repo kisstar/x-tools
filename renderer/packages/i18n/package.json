@@ -1,0 +1,23 @@
+{
+  "name": "@x-tools/i18n",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./use-translate": "./src/use-translate.ts",
+    "./locales/en/common.json": "./locales/en/common.json",
+    "./locales/zh-CN/common.json": "./locales/zh-CN/common.json"
+  },
+  "files": ["src", "locales"],
+  "dependencies": {
+    "i18next": "catalog:",
+    "react-i18next": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@x-tools/icons",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/icons.ts"
+  },
+  "files": ["src"],
+  "dependencies": {
+    "lucide-react": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

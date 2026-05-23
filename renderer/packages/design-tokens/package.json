@@ -1,0 +1,14 @@
+{
+  "name": "@x-tools/design-tokens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./src/tokens.css",
+    "./tailwind-preset": "./src/tailwind-preset.ts"
+  },
+  "files": ["src"],
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

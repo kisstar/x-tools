@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "xTools",
+    "beta": "测试版",
+    "version": "v0.1.0"
+  },
+  "search": {
+    "placeholder": "搜索工具或询问 AI...",
+    "palettePlaceholder": "搜索工具、运行命令或询问 AI..."
+  },
+  "nav": {
+    "home": "首页",
+    "ai": "AI",
+    "files": "文件",
+    "code": "代码",
+    "image": "图片",
+    "settings": "设置",
+    "apps": "应用"
+  },
+  "subnav": {
+    "title": "工具",
+    "all": "全部工具",
+    "developer": "开发者",
+    "formatters": "格式化",
+    "converters": "转换器",
+    "encoders": "编码器",
+    "generators": "生成器",
+    "network": "网络"
+  },
+  "toolbar": {
+    "sort": "排序"
+  },
+  "commandPalette": {
+    "placeholder": "搜索工具、运行命令或询问 AI...",
+    "suggestions": "推荐",
+    "recent": "最近使用",
+    "noResults": "没有找到结果",
+    "askAi": "询问 AI",
+    "aiHint": "让 AI 帮你找到合适的工具...",
+    "navigate": "导航",
+    "open": "打开"
+  },
+  "empty": {
+    "title": "欢迎使用 xTools",
+    "description": "你的智能工具工作空间。浏览分类、搜索工具，或让 AI 帮你找到合适的工具。",
+    "browseAll": "浏览全部工具",
+    "search": "搜索",
+    "popular": "热门工具",
+    "tools": {
+      "json": "JSON 格式化",
+      "base64": "Base64 编解码",
+      "url": "URL 编码器",
+      "hash": "哈希生成器"
+    }
+  }
+}

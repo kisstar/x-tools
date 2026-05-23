@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@import "@x-tools/design-tokens/tokens.css";
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-on-primary: var(--color-on-primary);
+  --color-ink: var(--color-ink);
+  --color-body: var(--color-body);
+  --color-mute: var(--color-mute);
+  --color-hairline: var(--color-hairline);
+  --color-hairline-strong: var(--color-hairline-strong);
+  --color-canvas: var(--color-canvas);
+  --color-canvas-soft: var(--color-canvas-soft);
+  --color-canvas-soft-2: var(--color-canvas-soft-2);
+  --color-link: var(--color-link);
+  --color-link-deep: var(--color-link-deep);
+  --color-success: var(--color-success);
+  --color-error: var(--color-error);
+  --color-error-soft: var(--color-error-soft);
+  --color-warning: var(--color-warning);
+  --color-warning-soft: var(--color-warning-soft);
+
+  --font-sans: var(--dt-font-sans);
+  --font-mono: var(--dt-font-mono);
+}
+
+body {
+  font-family: var(--dt-font-sans);
+  color: var(--color-ink);
+  background-color: var(--color-canvas-soft);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-selection-bg);
+  color: var(--color-selection-fg);
+}
