@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schema.tauri.app/config/2/capability",
+  "identifier": "default",
+  "description": "Default capability set: gives the renderer the IPC, window, fs, shell, notification and store permissions it expects.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:default",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-close",
+    "core:window:allow-set-title",
+    "core:window:allow-set-size",
+    "core:event:default",
+    "core:webview:default",
+    "shell:default",
+    "fs:default",
+    "dialog:default",
+    "notification:default",
+    "store:default"
+  ]
+}

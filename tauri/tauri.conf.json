@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "xTools",
+  "version": "0.1.0",
+  "identifier": "com.xtools.app",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @x-tools/app-main dev",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "pnpm --filter @x-tools/app-main build",
+    "frontendDist": "../renderer/apps/main/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "xTools",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 960,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: https: asset: http://asset.localhost; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' ipc: http://ipc.localhost ws: wss:; font-src 'self' data:"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "DeveloperTool",
+    "shortDescription": "xTools — modular cross-platform tool platform",
+    "longDescription": "xTools is a modular, AI-first, plugin-driven workspace inspired by uTools."
+  }
+}

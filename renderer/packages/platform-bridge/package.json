@@ -1,0 +1,23 @@
+{
+  "name": "@x-tools/platform-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": ["src"],
+  "dependencies": {
+    "@x-tools/protocol": "workspace:*"
+  },
+  "peerDependencies": {
+    "@tauri-apps/api": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@tauri-apps/api": { "optional": true }
+  },
+  "devDependencies": {
+    "@tauri-apps/api": "catalog:",
+    "typescript": "catalog:"
+  }
+}

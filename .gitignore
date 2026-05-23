@@ -1,11 +1,22 @@
 # sys
 .DS_Store
+.idea/
+.vscode/
 
 # log
 *.log
 
-# dependence
+# dependencies
 node_modules
 
-# outout
+# build output
 dist
+release
+
+# Tauri / Rust
+target/
+Cargo.lock
+
+# Electron
+electron/dist
+electron/release

@@ -1,0 +1,28 @@
+{
+  "name": "x-tools",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "pnpm --filter @x-tools/app-main dev",
+    "dev:electron": "pnpm --filter @x-tools/electron dev",
+    "dev:tauri": "pnpm --filter @x-tools/app-main exec -- pnpm tauri:dev",
+    "tauri:dev": "cd tauri && cargo tauri dev",
+    "tauri:build": "cd tauri && cargo tauri build",
+    "build": "pnpm --filter @x-tools/app-main build",
+    "build:electron": "pnpm --filter @x-tools/electron build",
+    "typecheck": "tsc --noEmit -p renderer/apps/main/tsconfig.json && pnpm --filter @x-tools/electron typecheck && pnpm --filter @x-tools/protocol typecheck",
+    "preview": "pnpm --filter @x-tools/app-main preview"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "electron"
+    ]
+  }
+}

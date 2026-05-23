@@ -1,0 +1,55 @@
+{
+  "name": "@x-tools/electron",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build:renderer": "pnpm --filter @x-tools/app-main build",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build": "pnpm build:renderer && pnpm build:main && electron-builder",
+    "package": "electron-builder --dir",
+    "typecheck": "tsc --noEmit -p tsconfig.main.json"
+  },
+  "dependencies": {
+    "@x-tools/protocol": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "electron": "catalog:",
+    "electron-builder": "catalog:",
+    "typescript": "catalog:"
+  },
+  "build": {
+    "appId": "com.xtools.app",
+    "productName": "xTools",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "../renderer/apps/main/dist/**/*"
+    ],
+    "extraMetadata": {
+      "main": "dist/main.js"
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] }
+      ]
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "category": "Development"
+    }
+  }
+}
