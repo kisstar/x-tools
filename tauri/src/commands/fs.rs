@@ -123,8 +123,8 @@ pub async fn fs_remove(args: RemoveArgs) -> Result<(), String> {
 /// Placeholder watcher: returns a fresh id but does not actually emit events
 /// yet. Real implementation should spawn a `notify::RecommendedWatcher` and
 /// forward events to the renderer via `tauri::Window::emit` on the
-/// `event:file-change:{id}` channel. Tracking that follow-up in
-/// docs/ARCHITECTURE.md §11.
+/// `event:file-change:{id}` channel. Until then the `fs.watch` capability must
+/// report `available: false, reason: 'not-implemented'`.
 #[tauri::command]
 pub async fn fs_watch(_path: String) -> Result<String, String> {
     Ok(Uuid::new_v4().to_string())

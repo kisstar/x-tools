@@ -16,6 +16,7 @@ release
 # Tauri / Rust
 target/
 Cargo.lock
+tauri/gen/
 
 # Electron
 electron/dist

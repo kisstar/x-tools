@@ -64,4 +64,4 @@ pnpm tauri:build
   - Web：本地降级实现（localStorage、Web Notifications API 等）
 - 同一份渲染代码在三种运行时中行为一致
 
-详见 [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)。
+详见 [docs/architecture/cross-platform-design.md](./docs/architecture/cross-platform-design.md)。

@@ -92,6 +92,6 @@ pnpm typecheck        # 类型检查 renderer、electron 和 protocol
 
 ## 文档
 
-- `docs/ARCHITECTURE.md` — 完整架构设计文档
+- `docs/architecture/cross-platform-design.md` — 跨端架构设计方案（索引，分章在同名目录下）
 - `docs/prd/` — 各模块产品需求文档
 - `DESIGN.md` — 视觉设计系统规范
