@@ -38,7 +38,7 @@ storage.get / window.control / notification.show / update.check
 
 CLI 与 serve 形态没有渲染进程，但 AI Agent 需要知道当前能调什么。因此 registry 不能只活在 renderer：
 
-- registry 由 **channel server 持有真源**——两份 channel server 各持一份（`core-ts/packages/channel-server` 与 `core-rs/crates/xtools-channel`）
+- registry 由 **channel server 持有真源**——两份 channel server 各持一份（`core-ts/packages/channel-server` 与 `core-rs/crates/channel`）
 - 暴露一个 channel：`capability:list` → 返回全部 key + available + reason + limits
 - **两份 registry 的输出一致性由契约测试锁定**：`capability:list` 是契约用例覆盖的 channel 之一，用例断言 key 集合与 limits 结构一致（`available` 允许因宿主而异，但 key 必须齐全、`reason` 必须给）
 - MCP 侧把它作为一个 tool 暴露，Agent 可先查能力再决定调用

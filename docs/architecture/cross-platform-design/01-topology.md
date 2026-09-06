@@ -61,25 +61,35 @@ xTools/
 │   └── packages/kernel/            # DI 容器 + 事件总线 + 生命周期 + 插件注册表（不依赖 React）
 │
 ├── core-rs/                        # Rust 能力核心（完整实现，见 §4）
-│   ├── crates/xtools-capabilities/ # OS 原语
-│   ├── crates/xtools-modules/      # 业务模块能力
-│   ├── crates/xtools-channel/      # channel 路由 + schema 校验（schema 由 §5.6 codegen 产出）
-│   └── crates/xtools-kernel/       # 能力注册表 + 生命周期
+│   ├── crates/capabilities/        # OS 原语
+│   ├── crates/modules/             # 业务模块能力
+│   ├── crates/channel/             # channel 路由 + schema 校验（schema 由 §5.6 codegen 产出）
+│   └── crates/kernel/              # 能力注册表 + 生命周期
 │
 ├── elevate-rs/                     # Rust 提权 helper 二进制（见 §8）
 │
 ├── hosts/
 │   ├── electron/                   # layer: electron-main —— 薄壳：窗口/托盘/菜单/更新 + ipc 传输
 │   ├── tauri/                      # Rust 薄壳：窗口 + 单 rpc 命令传输
-│   └── xtools-cli/                 # Rust bin crate —— argv 解析 + `serve` 子命令 + MCP stdio
-│                                   #   （CLI 与 serve 同一个二进制，serve 只是一个子命令）
+│   └── cli/                        # Rust bin crate（产出二进制 xtools）—— argv 解析
+│                                   #   三个子命令：业务命令 / `serve` / `mcp`，同一个二进制
 │
 └── renderer/                       # layer: browser —— UI，完全一套
     ├── apps/main/
     └── packages/                   # channel-client / design-tokens / i18n / icons / types
 ```
 
-`hosts/cli` 与 `hosts/serve` 不再是两个 node 包——它们合成一个 Rust bin crate `xtools-cli`，`xtools serve` 是子命令。理由：两者都只是 Rust core 的薄传输壳，分成两个二进制会让 Rust core 静态链接两遍，分发体积翻倍且无收益。
+CLI / serve / MCP 不是三个包，而是**一个** Rust bin crate `cli` 的三个子命令（产出二进制名 `xtools`）：
+
+| 子命令 | 传输 | 用途 |
+|---|---|---|
+| `xtools <业务命令>` | in-process，一次性执行后退出 | 人在终端里用、脚本调用 |
+| `xtools serve` | HTTP + WebSocket，loopback | 浏览器打开 UI（§7.4） |
+| `xtools mcp` | stdio JSON-RPC，长驻 | AI Agent 挂载 |
+
+三者都只是同一个 channel server 前面换一层传输适配，不含任何业务逻辑；子命令清单与 MCP tool 列表同由 channel 注册表派生（不变式 4）。拆成两个二进制会让 Rust core 静态链接两遍，分发体积翻倍且无收益，还要维护两份注册表初始化路径。
+
+crate 名与目录名不必一致：`hosts/tauri` 的 crate 不能叫 `tauri`（会与 crates.io 的 `tauri` 依赖同名冲突），按 Cargo 惯例另取一个名字。
 
 ### layer 纪律（必须有工具强制）
 
@@ -91,7 +101,7 @@ xTools/
 | `electron-main` | `common`、`node` | DOM、renderer 代码 |
 | `browser`（renderer/packages） | `common` | `renderer/apps/*` |
 
-Rust 侧不参与 layer 字段体系（无 package.json），用 crate 依赖方向替代：`xtools-capabilities` / `xtools-modules` 不得依赖 `hosts/*`；`tauri` 与 `xtools-cli` 都只依赖 `xtools-channel`，不直接依赖 capabilities crate——保证传输壳不绕过 channel server 的校验闸门。这条由 `cargo-deny`/CI 检查依赖图落实。
+Rust 侧不参与 layer 字段体系（无 package.json），用 crate 依赖方向替代：`capabilities` / `modules` 不得依赖 `hosts/*`；`tauri` 与 `cli` 都只依赖 `channel`，不直接依赖 `capabilities` crate——保证传输壳不绕过 channel server 的校验闸门。这条由 `cargo-deny`/CI 检查依赖图落实。
 
 **这条纪律必须由 ESLint 落实，不能只写在 CLAUDE.md 里。** 分层约定最常见的两种失效方式：
 

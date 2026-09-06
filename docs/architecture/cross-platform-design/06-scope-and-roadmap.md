@@ -41,7 +41,7 @@
 **阶段 2 — 两份 core 抽离 + 契约测试（双写的起点，防线必须先立）**
 
 10. 把能力实现从 `electron/src/services/` 搬进 `core-ts`，Electron 变薄壳
-11. `core-rs` 建 crate 骨架：`xtools-channel` + `xtools-capabilities`，先只实现 fs 一个 channel
+11. `core-rs` 建 crate 骨架：`channel` + `capabilities`，先只实现 fs 一个 channel
 12. **契约测试套件 + §11.2 的四条自检**——以 fs 为第一个双跑对象，跑通后才继续加能力
 13. capability registry 落两份 channel server，加 `capability:list`（§9.3），用例断言两侧 key 集合一致
 

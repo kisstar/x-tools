@@ -93,7 +93,7 @@ TS core 仍然完整实现，但**唯一消费者是 Electron main**。它不再
 | 已装 Electron 客户端 | Electron main + TS core（内嵌 WS 传输供浏览器打开 UI） | **0** |
 | 已装 Tauri 客户端 | Tauri 壳 + Rust core（静态链接） | 0 |
 | 仅 CLI / MCP / serve | `xtools` 单二进制（Rust，含 core + serve + MCP） | **~5–10MB** |
-| 开发态 | `cargo run -p xtools-cli -- serve` / `pnpm dev:electron` | — |
+| 开发态 | `cargo run -p cli -- serve` / `pnpm dev:electron` | — |
 
 `xtools` 是**一个**二进制，`serve` / `mcp` / 各业务子命令都是它的子命令。不产出多个二进制，避免 Rust core 被静态链接多遍。
 
