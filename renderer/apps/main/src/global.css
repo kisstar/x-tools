@@ -24,6 +24,20 @@
   --font-mono: var(--dt-font-mono);
 }
 
+/* 侧边栏宽度：默认值的唯一真源。inherits: false 让拖拽只重算持有变量的那个元素自身，
+   不波及兄弟子树。分隔条双击复位即删掉内联值回到这里。 */
+@property --pane-nav {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 56px;
+}
+
+@property --pane-subnav {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 200px;
+}
+
 body {
   font-family: var(--dt-font-sans);
   color: var(--color-ink);

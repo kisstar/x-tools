@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { SubNavItem } from "../components/SubNavItem"
 import { useNavStore } from "../store/nav-store"
 
-function SubNav() {
+function SubNav({ ref }: { readonly ref?: React.Ref<HTMLElement> }) {
   const { t } = useTranslation()
   const activeCategoryId = useNavStore((s) => s.activeCategoryId)
   const setActiveCategoryId = useNavStore((s) => s.setActiveCategoryId)
@@ -20,7 +20,10 @@ function SubNav() {
   ] as const
 
   return (
-    <aside className="flex flex-col gap-4 w-[200px] h-full py-4 px-3 bg-canvas border-r border-hairline shrink-0">
+    <aside
+      ref={ref}
+      className="flex flex-col gap-4 w-[var(--pane-subnav)] h-full py-4 px-3 bg-canvas shrink-0"
+    >
       <div className="flex items-center justify-between w-full">
         <span className="text-xs font-medium text-mute tracking-wide">
           {t("subnav.title")}

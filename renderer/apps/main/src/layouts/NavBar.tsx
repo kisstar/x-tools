@@ -2,7 +2,7 @@ import { House, Sparkles, Folder, Code, Image, Settings, Grid3X3 } from "@x-tool
 import { NavItem } from "../components/NavItem"
 import { useNavStore } from "../store/nav-store"
 
-function NavBar() {
+function NavBar({ ref }: { readonly ref?: React.Ref<HTMLElement> }) {
   const activeNavId = useNavStore((s) => s.activeNavId)
   const setActiveNavId = useNavStore((s) => s.setActiveNavId)
 
@@ -19,7 +19,10 @@ function NavBar() {
   ] as const
 
   return (
-    <nav className="flex flex-col justify-between items-center w-14 h-full py-3 px-2 bg-canvas border-r border-hairline shrink-0">
+    <nav
+      ref={ref}
+      className="flex flex-col justify-between items-center w-[var(--pane-nav)] h-full py-3 px-2 bg-canvas shrink-0"
+    >
       <div className="flex flex-col items-center gap-1 w-full">
         {topItems.map((item) => (
           <NavItem
