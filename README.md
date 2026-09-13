@@ -10,8 +10,9 @@ xTools/
 │   ├── apps/main/             # 主应用
 │   └── packages/              # 共享包：design-tokens、i18n、icons、types、platform-bridge
 ├── protocol/      # @x-tools/protocol — 渲染进程与主进程之间的类型化协议
-├── electron/      # @x-tools/electron — Electron 主进程 + IPC 实现
-└── tauri/         # Tauri 2 后端（Rust）
+└── hosts/         # 宿主壳层（见 docs/architecture/cross-platform-design/01-topology.md §3）
+    ├── electron/              # @x-tools/electron — Electron 主进程 + IPC 实现
+    └── tauri/                 # Tauri 2 后端（Rust）
 ```
 
 ## 先决条件

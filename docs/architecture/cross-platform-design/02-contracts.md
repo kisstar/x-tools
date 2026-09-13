@@ -11,7 +11,7 @@
 `protocol/src/ports.ts:70` 把 6 个端口聚合成一个 `Bridge` 接口。后果有三个，且都已实证：
 
 1. **新增能力要动 5 个文件**，插件无法往接口里加字段——这套契约结构在设计上排斥插件贡献能力，而这恰是核心目标。
-2. **产出了整类 bug**：`tauri-adapter.ts:107`–`133` 共 11 处误把 `Channels` 常量当 Tauri 命令名用，`invoke(Channels.storageGet)` 实际发出 `"storage:get"`，而 `tauri/src/main.rs:28` 注册的是 `storage_get`。Tauri 下 storage / shell 全部调不通，update / notification Rust 侧根本没注册。
+2. **产出了整类 bug**：`tauri-adapter.ts:107`–`133` 共 11 处误把 `Channels` 常量当 Tauri 命令名用，`invoke(Channels.storageGet)` 实际发出 `"storage:get"`，而 `hosts/tauri/src/main.rs:28` 注册的是 `storage_get`。Tauri 下 storage / shell 全部调不通，update / notification Rust 侧根本没注册。
 3. **表达不了 headless**：`detect.ts:11` 只返回平台枚举，无法表达「Electron 宿主但此刻没有窗口」。
 
 ### 5.2 目标形状：channel RPC
@@ -35,6 +35,14 @@ export interface IMessagePassingProtocol {
   readonly send: (buffer: Uint8Array) => void;
   readonly onMessage: (handler: (buffer: Uint8Array) => void) => Disposable;
 }
+
+// 调用上下文。pluginId 是权限白名单的落点（§18.2）：
+// 缺了它，channel server 无法区分「内核自己在调」与「某个插件在调」
+export interface CallContext {
+  readonly origin: 'kernel' | 'plugin';
+  readonly pluginId?: string;      // origin === 'plugin' 时必填
+  readonly transport: 'ipc' | 'tauri' | 'ws' | 'in-process';
+}
 ```
 
 四种传输 = 四个 `IMessagePassingProtocol` 实现，core 与 UI 零改动：
@@ -55,7 +63,7 @@ code-server 就是同一套 channel 换 WebSocket 跑起来的，这条路径已
 
 ### 5.4 schema 是单一真源，并顺带解锁 MCP
 
-`electron/src/ipc/register.ts:14` 直接解构 renderer 传入的参数、拿 path 直接读写，无 schema、无路径白名单——这是当前唯一的信任边界实缺口。而 MCP server 需要每个 tool 的 JSON Schema。**同一件事，两个收益**：
+`hosts/electron/src/ipc/register.ts:14` 直接解构 renderer 传入的参数、拿 path 直接读写，无 schema、无路径白名单——这是当前唯一的信任边界实缺口。而 MCP server 需要每个 tool 的 JSON Schema。**同一件事，两个收益**：
 
 ```ts
 // protocol/src/commands/fs.ts
@@ -84,9 +92,9 @@ export const FS_READ_FILE = defineCommand({
 
 xTools 已有同类问题四处：
 
-- `electron/src/services/shell.ts:8` 与 `tauri/src/commands/shell.rs:24`：`elevated` 参数只接收不生效
-- `UpdatePort` 三个方法返回 `null`/`undefined`（`electron/src/ipc/register.ts:52` 空壳）
-- `tauri/src/commands/fs.rs:129`：`fs_watch` 只返回 UUID，从不 emit
+- `hosts/electron/src/services/shell.ts:8` 与 `hosts/tauri/src/commands/shell.rs:24`：`elevated` 参数只接收不生效
+- `UpdatePort` 三个方法返回 `null`/`undefined`（`hosts/electron/src/ipc/register.ts:52` 空壳）
+- `hosts/tauri/src/commands/fs.rs:129`：`fs_watch` 只返回 UUID，从不 emit
 - `Events.windowClosed` 两端从未 emit，`WindowPort.onClose` 在桌面端是死订阅
 
 **规则**：契约字段若实现能力不足，要么从类型里删掉，要么在 capability 的 `limits` 里显式声明，禁止静默降级。
@@ -114,3 +122,16 @@ protocol/src/commands/*.ts   （zod，唯一真源，人手维护）
 - `zod-to-json-schema` 本来就要为 MCP 装（§5.4），JSON Schema 这一跳是顺手的，没有新增依赖负担。
 - 备选方案已否：**中立 IDL 作真源**（多引入一门语言和一套工具链，TS 侧还得反向生成 zod，收益不足）；**serde struct 作真源**（TS 侧要从 Rust 生成 zod，而 TS 侧才是契约的作者视角，方向反了）。
 - 只生成**结构与基本约束**（类型、必填、min/max、enum）。zod 的 `.refine()` 这类自定义逻辑无法过 JSON Schema，必须列为「两侧各写一遍并由契约测试锁定」的部分——因此**尽量不用 `.refine()` 表达安全约束**，安全约束（如路径穿越检查）应下沉到 core 的 path-guard，那里本来就有契约测试覆盖。
+
+### 5.7 动态插件是 codegen 链路的显式例外
+
+上面的链路成立前提是「所有 channel 在构建期已知」。动态安装的插件不满足这个前提——它的 channel 在构建 `xtools` 时还不存在。
+
+| channel 来源 | schema 归属 | 校验发生在 |
+|---|---|---|
+| 内核 + 内置插件 | `protocol/src/commands/*.ts`，参与构建期 codegen | 两份 server 都有生成物 |
+| 动态插件（`ts` / `ui`） | 随插件分发的 zod | **运行时注册进 TS channel server 的校验表**，MCP tool 定义现场 `zod-to-json-schema` |
+
+这条例外**只存在于 TS 一侧**：动态插件只能在 Electron 上有后端（§16.2），而 Electron 侧本来就有 zod 运行时。Rust 侧「struct 是生成物、禁止手改」不受影响。
+
+不放松的部分：插件贡献的 channel **必须**带 zod schema，没有 schema 的 channel 拒绝注册（§19.3）。信任边界不接受未校验入参，插件来的入参尤其如此。

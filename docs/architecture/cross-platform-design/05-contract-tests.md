@@ -47,22 +47,27 @@ TS 侧 vitest 读它，Rust 侧 `#[test]` 读同一份。用例数据是真源�
 | 对象 | 是否纳入契约测试 |
 |---|---|
 | OS 原语（fs / shell / storage / path-guard） | ✅ TS + Rust 双跑 |
-| 业务模块（switch-host 等） | ✅ **TS + Rust 双跑**（双写的直接后果） |
+| channel server / capability registry / plugin host | ✅ TS + Rust 双跑（内核双写的主要对象，§15.2） |
+| 业务模块（switch-host 等，即插件） | ✅ **按 manifest 声明的 runtime 跑**——声明 `rust-builtin` 才进 Rust runner，详见 §21.3 |
+| 插件卸载泄漏（六个注册面归零 + 装卸循环 20 次） | ✅ 每个插件必跑（§21.1） |
+| 插件权限闸门（未声明 capability → `FORBIDDEN`；两条红线加载期拒绝） | ✅ 用例由 manifest 派生 + 合成恶意 manifest fixture（§21.3） |
 | 网络（http / ws / sse 客户端能力） | ✅ TS + Rust 双跑 |
 | 提权 helper 动作 | ✅ TS + Rust 双跑（同一个 helper 二进制） |
 | 传输层错误码语义（§6 那五个） | ✅ 四条路径全跑 |
-| `capability:list` 输出的 key 集合与 limits 结构 | ✅ 两份 registry 必跑（§9.3） |
+| `capability:list` 输出的 key 集合与 limits 结构 | ✅ 两份 registry 必跑（§9.3）；插件 key 允许 `reason: 'runtime-unsupported'` 差异，不允许缺 key |
 | HTTP/WS server 对外行为 | ✅ Rust server 必跑；Electron 内嵌 WS 传输跑同一份用例 |
-| schema codegen 一致性 | ✅ CI 断言「重新生成后 git diff 为空」（§5.6） |
+| schema codegen 一致性 | ✅ CI 断言「重新生成后 git diff 为空」（§5.6）；动态插件的运行时 schema 例外见 §5.7 |
 | 窗口 / 托盘 / 菜单 | ❌ host shell，走 E2E |
 
 ### 11.4 新模块的验收标准
 
-**「TS 侧能跑」不是完成。** 一个业务模块视为完成，要求：
+**「TS 侧能跑」不是完成。** 内核层新增能力视为完成，要求：
 
 1. channel 契约在 `protocol/` 声明，schema codegen 产物已更新
 2. TS core 与 Rust core 两份实现都在
 3. 同一份契约用例两侧全绿，用例覆盖成功路径 + 每个错误码路径
 4. capability 在两份 registry 都注册（allow `available` 不同，不 allow 缺 key）
 
-这四条写进 PR 模板，靠清单强制，不靠记性。
+**插件的验收标准是另一套五条，见 §21.4**——它不要求两份实现，改为要求「声明的每个 runtime 都有产物、未声明的宿主上能查到 `runtime-unsupported`」，并额外要求卸载泄漏归零与 `model/` 层单测。
+
+两套清单都写进 PR 模板，靠清单强制，不靠记性。

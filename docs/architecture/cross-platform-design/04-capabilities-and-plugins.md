@@ -14,7 +14,12 @@ capability 的形状要能同时承载三层信息：能力是否存在、不可
 export interface Capability<TService = unknown> {
   readonly key: CapabilityKey;
   readonly available: boolean;
-  readonly reason?: 'not-implemented' | 'user-disabled' | 'permission-denied' | 'no-window';
+  readonly reason?:
+    | 'not-implemented'
+    | 'user-disabled'
+    | 'permission-denied'
+    | 'no-window'
+    | 'runtime-unsupported';   // 插件未为当前宿主提供 runtime（§16.3）
   readonly mode?: string;
   readonly limits?: Readonly<Record<string, unknown>>;
   readonly service: TService;
@@ -30,9 +35,12 @@ export interface Capability<TService = unknown> {
 ```
 fs.read / fs.write / fs.watch / shell.open / shell.elevate
 storage.get / window.control / notification.show / update.check
+registry.read
 ```
 
-`fs.watch` 必须独立成 key：`tauri/src/commands/fs.rs:129` 的 `fs_watch` 只返回 UUID 从不 emit，正确表达是 `{ key: 'fs.watch', available: false, reason: 'not-implemented' }`，而不是让 UI 拿到一个永不触发的订阅。
+`registry.read` 是插件读取「当前装了哪些 container / view」的授权位（§20.5）。它必须独立成 key 而非默认能力：能枚举全部已装插件等于能做指纹识别，「工具大全」这类聚合插件需要它，绝大多数插件不需要。
+
+`fs.watch` 必须独立成 key：`hosts/tauri/src/commands/fs.rs:129` 的 `fs_watch` 只返回 UUID 从不 emit，正确表达是 `{ key: 'fs.watch', available: false, reason: 'not-implemented' }`，而不是让 UI 拿到一个永不触发的订阅。
 
 ### 9.3 服务侧必须可查（这是 CLI/AI Agent 的关键）
 
@@ -58,6 +66,8 @@ CLI 与 serve 形态没有渲染进程，但 AI Agent 需要知道当前能调�
 
 ## 10. 插件模型
 
+> **本节是插件模型的地基，完整方案见 [§15–§21 微内核插件架构](07-plugin-architecture.md)。** 下面 §10.1 的三条约束与 §10.4 的清单漂移仍然成立并被 07 章直接引用；§10.2 的「一期：编译期模块」定位已被 §16.1 的 manifest（含 `runtimes` / `channels` / `fsScope`）取代，此处只保留最小示例作为约束 2 的说明。
+
 两件事都要做，但分期，且**第一天就把三条约束定死**——这三条现在零成本，事后补要重写插件 API。
 
 ### 10.1 三条不可协商的约束
@@ -66,15 +76,20 @@ CLI 与 serve 形态没有渲染进程，但 AI Agent 需要知道当前能调�
 2. **贡献点是静态声明式 manifest，不是插件代码调 `registry.register()`**。UI 必须能在插件未激活时渲染入口，否则「按需激活」不可能实现——这是 VSCode Contribution Point 的真正价值所在，不是配置风格偏好。
 3. **插件只能通过注入的 `PluginContext` 访问内核**，禁止 import 内核模块。这条决定了将来能否把插件搬到 Extension Host。
 
-### 10.2 一期：编译期模块 + 声明式贡献点
+### 10.2 声明式贡献点的最小形状（完整 manifest 见 §16.1）
 
 ```jsonc
 // plugins/switch-host/manifest.json
 {
   "id": "switch-host",
-  "activationEvents": ["onCommand:switchHost.open", "onView:switchHost"],
+  "activationEvents": ["onCommand:switchHost.open", "onViewContainer:switchHost"],
   "contributes": {
-    "views": [{ "id": "switchHost", "title": "Hosts 切换", "icon": "network" }],
+    // 导航是两级贡献点：container 占导航格子，view 挂在 container 上（§20.5）
+    "viewContainers": [
+      { "id": "switchHost", "title": "Hosts 切换", "icon": "network",
+        "location": "nav-top", "order": 300 }
+    ],
+    "views": [{ "id": "hosts", "container": "switchHost", "slot": "content" }],
     "commands": [{ "id": "switchHost.open", "title": "打开 Hosts 切换" }],
     "capabilities": ["fs.read", "fs.write", "shell.elevate"]
   }
@@ -83,7 +98,9 @@ CLI 与 serve 形态没有渲染进程，但 AI Agent 需要知道当前能调�
 
 一期插件与宿主同进程，`PluginContext` 内部直连 channel client。**因为 API 已经是 async、访问已经走 context，二期换成跨进程只是换 `IMessagePassingProtocol` 的实现。**
 
-`contributes.capabilities` 同时是**权限声明**：插件调用未声明的 capability 直接 `FORBIDDEN`，不靠代码审查兜。
+「一期插件都是编译期模块」这条已作废：动态安装（本地目录 / zip）在一期就要有，运行时装载与可逆卸载见 §17；`PluginContext` 的完整注册面见 §17.2。
+
+`contributes.capabilities` 同时是**权限声明**：插件调用未声明的 capability 直接 `FORBIDDEN`，不靠代码审查兜。判定发生在加载期与调用期两处，两条红线（`shell.elevate` / `fsScope: unrestricted` 仅内置可申请）见 §18。
 
 ### 10.3 二期：独立进程 Extension Host
 
@@ -96,5 +113,5 @@ CLI 与 serve 形态没有渲染进程，但 AI Agent 需要知道当前能调�
 xTools 会有四个入口（Electron / Tauri / Web / CLI），复制点比单宿主应用更多，漂移风险更高。因此：
 
 - **manifest 是唯一真源**，路由表、侧边栏、命令面板、MCP tool 全部由它派生
-- `renderer/apps/main/src/data/mock-tools.ts:3` 那 12 条硬编码 `mockTools`（被 `HomePage.tsx:11` 与 `CommandPalette.tsx:7` 直接 import）、`NavBar.tsx:9` 的 `topItems`、`SubNav.tsx:12` 的 `categories` —— 全部替换为从 registry 读
+- `renderer/apps/main/src/data/mock-tools.ts:3` 那 12 条硬编码 `mockTools`（被 `HomePage.tsx:11` 与 `CommandPalette.tsx:7` 直接 import）、`NavBar.tsx:9` 的 `topItems` —— 全部替换为从 registry 读；`SubNav.tsx:12` 的 `categories` —— **删除**，内核不内置分类概念，分类列表搬进内置插件 `tool-catalog`（§20.4、§20.5）
 - 加一条构建期断言：manifest 里声明的每个 view 都能解析到组件，每个 command 都有 handler；**并且断言器要能检测到「自己什么都没检测到」**（见 §11）

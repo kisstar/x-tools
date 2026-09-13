@@ -19,7 +19,8 @@
 | **Rust core 覆盖范围** | **完整，含业务模块**——被 Tauri / serve / CLI-MCP 三条触达面复用 |
 | TS core 覆盖范围 | 完整，但**唯一消费者是 Electron main** |
 | 宿主定位 | Electron 为主要发行形态；**Tauri 随 Rust core 完整而自然功能对等** |
-| 插件模型 | 编译期模块 + 声明式贡献点先落地，VSCode 式独立进程 Extension Host 为第二阶段 |
+| **插件模型** | **微内核 + 一切皆插件**：内核只留 5 件（channel server / capability registry / plugin host / transports / OS 原语），业务模块全部是插件，内置与动态安装走同一套机制（§15） |
+| **插件双写** | **不双写**。插件在 manifest 声明 `runtimes`，宿主取交集决定 `available`；未支持的宿主上注册后置灰（`reason: 'runtime-unsupported'`），不是消失（§16） |
 | 提权执行 | 独立小二进制 `xtools-elevate`（Rust，最小攻击面），两个 core 共同调用 |
 | **schema 跨语言真源** | zod 为唯一真源 → 构建期导出 JSON Schema → 供 Rust codegen 与 MCP 共用（§5.6） |
 
@@ -38,6 +39,8 @@ xTools 当前按「宿主」切实现（Electron 一份、Tauri 一份），目�
 
 这个选择的代价是明确的，且是上一轮 Q1 决策就已接受的：**每个业务模块写两遍，契约测试从「保险」升级为「生命线」**（§11）。收益是 CLI 与 serve 拿到零依赖的 5–10MB 单二进制，且 Tauri 不再是二等宿主。
 
+**微内核化后这条代价被收窄**（§15.2）：双写只发生在**内核**（两份 channel server / capabilities / plugin host），是固定一套的有界成本；业务模块作为插件按 manifest 声明 runtime，**不要求双写**。内置插件若想在四端全可用，仍需自行提供 `ts` + `rust-builtin` 两份后端——但这是插件作者的选择，不是内核强制的税。
+
 ---
 
 ## 章节 → 文件
@@ -45,8 +48,9 @@ xTools 当前按「宿主」切实现（Electron 一份、Tauri 一份），目�
 | 章节 | 文件 |
 |---|---|
 | §2 整体拓扑 · §3 monorepo 拓扑与分层 · §4 双实现的边界 | [01-topology.md](cross-platform-design/01-topology.md) |
-| §5 契约层（5.1–5.6） | [02-contracts.md](cross-platform-design/02-contracts.md) |
+| §5 契约层（5.1–5.7） | [02-contracts.md](cross-platform-design/02-contracts.md) |
 | §6 四条触达路径 · §7 server / CLI 的实现语言与分发 · §8 提权 helper 为什么仍要独立 | [03-access-and-distribution.md](cross-platform-design/03-access-and-distribution.md) |
 | §9 capability registry · §10 插件模型 | [04-capabilities-and-plugins.md](cross-platform-design/04-capabilities-and-plugins.md) |
 | §11 契约测试套件 | [05-contract-tests.md](cross-platform-design/05-contract-tests.md) |
 | §12 明确不做 · §13 分期 · §14 决策状态 | [06-scope-and-roadmap.md](cross-platform-design/06-scope-and-roadmap.md) |
+| §15 微内核边界 · §16 清单与 runtime 矩阵 · §17 生命周期 · §18 权限与信任 · §19 插件贡献 channel · §20 渲染侧组织 · §21 插件契约测试 | [07-plugin-architecture.md](cross-platform-design/07-plugin-architecture.md) |
