@@ -1,0 +1,14 @@
+# sys
+.DS_Store
+.idea/
+.vscode/
+
+# log
+*.log
+
+# dependencies
+node_modules
+
+# build output
+dist
+release
