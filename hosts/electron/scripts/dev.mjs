@@ -19,7 +19,7 @@ let electronProc: ChildProcess | null = null
 function startVite() {
   return spawn("pnpm", ["--filter", "@x-tools/app-main", "dev"], {
     stdio: "inherit",
-    cwd: path.resolve(__dirname, "../.."),
+    cwd: path.resolve(__dirname, "../../.."),
     env: { ...process.env, VITE_DEV_SERVER_URL: viteUrl },
   })
 }

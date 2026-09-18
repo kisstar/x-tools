@@ -7,7 +7,7 @@
     "beforeDevCommand": "pnpm --filter @x-tools/app-main dev",
     "devUrl": "http://localhost:5173",
     "beforeBuildCommand": "pnpm --filter @x-tools/app-main build",
-    "frontendDist": "../renderer/apps/main/dist"
+    "frontendDist": "../../renderer/apps/main/dist"
   },
   "app": {
     "windows": [

@@ -28,7 +28,7 @@
     },
     "files": [
       "dist/**/*",
-      "../renderer/apps/main/dist/**/*"
+      "../../renderer/apps/main/dist/**/*"
     ],
     "extraMetadata": {
       "main": "dist/main.js"

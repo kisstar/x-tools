@@ -75,11 +75,11 @@ importers:
         specifier: 'catalog:'
         version: 5.9.3
 
-  electron:
+  hosts/electron:
     dependencies:
       '@x-tools/protocol':
         specifier: workspace:*
-        version: link:../protocol
+        version: link:../../protocol
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

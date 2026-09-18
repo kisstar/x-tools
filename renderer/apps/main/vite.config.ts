@@ -25,7 +25,7 @@ export default defineConfig({
       : undefined,
     watch: {
       // Don't watch the Rust side — Cargo handles that.
-      ignored: ["**/tauri/target/**", "**/electron/dist/**"],
+      ignored: ["**/hosts/tauri/target/**", "**/hosts/electron/dist/**"],
     },
   },
   build: {

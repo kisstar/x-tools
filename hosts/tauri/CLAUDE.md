@@ -1,4 +1,4 @@
-# CLAUDE.md — tauri/
+# CLAUDE.md — hosts/tauri/
 
 > Tauri 2 后端：桌面应用的 Rust 原生外壳
 
@@ -9,7 +9,7 @@
 ## 目录结构
 
 ```
-tauri/
+hosts/tauri/
 ├── src/
 │   ├── main.rs            # 入口：Tauri builder 配置、插件注册
 │   ├── state.rs           # 应用状态（Mutex 包装的共享状态）
@@ -27,7 +27,7 @@ tauri/
 pnpm dev:tauri             # 开发模式（前端 Vite + cargo tauri dev 热重载）
 pnpm tauri:build           # 生产构建（原生二进制）
 
-# 直接 cargo（从 tauri/ 目录）：
+# 直接 cargo（从 hosts/tauri/ 目录）：
 cargo build                # 调试构建
 cargo clippy               # 代码检查
 cargo test                 # 运行测试
@@ -91,7 +91,7 @@ async fn get_config(state: tauri::State<'_, Mutex<AppState>>) -> Result<Config, 
 - `tauri.conf.json`：
   - `build.beforeDevCommand`：启动前端开发服务器
   - `build.devUrl`：`http://localhost:5173`
-  - `build.frontendDist`：`../renderer/apps/main/dist`
+  - `build.frontendDist`：`../../renderer/apps/main/dist`
   - 窗口：默认 1440x900，最小 960x600，覆盖式标题栏
 - Release 配置：`panic = "abort"`，启用 LTO，剥离符号
 

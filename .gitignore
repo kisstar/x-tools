@@ -16,8 +16,8 @@ release
 # Tauri / Rust
 target/
 Cargo.lock
-tauri/gen/
+hosts/tauri/gen/
 
 # Electron
-electron/dist
-electron/release
+hosts/electron/dist
+hosts/electron/release

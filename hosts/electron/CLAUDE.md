@@ -1,4 +1,4 @@
-# CLAUDE.md — electron/
+# CLAUDE.md — hosts/electron/
 
 > Electron 主进程：桌面应用的 Node.js 后端
 
@@ -9,7 +9,7 @@
 ## 目录结构
 
 ```
-electron/
+hosts/electron/
 ├── src/
 │   ├── main.ts            # 入口：应用生命周期、窗口创建
 │   ├── preload.ts         # 上下文桥接（向渲染进程暴露 electronAPI）
@@ -29,7 +29,7 @@ electron/
 pnpm dev:electron          # 开发模式（前端 HMR + Electron 重载）
 pnpm build:electron        # 完整构建（前端 + 主进程 + electron-builder）
 
-# 从 electron/ 目录执行：
+# 从 hosts/electron/ 目录执行：
 pnpm typecheck             # 类型检查主进程代码
 pnpm build:main            # 编译 TS -> dist/（CommonJS）
 ```
@@ -92,7 +92,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
 - TypeScript 编译到 `dist/`（CJS）
 - electron-builder 读取 `dist/main.js` 作为入口
-- 前端 dist 引用自 `../renderer/apps/main/dist/`
+- 前端 dist 引用自 `../../renderer/apps/main/dist/`
 - 平台目标：macOS（dmg, arm64/x64）、Windows（nsis, x64）、Linux（AppImage/deb, x64）
 
 ## 禁止事项

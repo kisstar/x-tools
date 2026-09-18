@@ -42,7 +42,7 @@ export function createMainWindow(): BrowserWindow {
   } else {
     const indexHtml = path.resolve(
       __dirname,
-      "../../renderer/apps/main/dist/index.html",
+      "../../../renderer/apps/main/dist/index.html",
     )
     void win.loadFile(indexHtml)
   }
