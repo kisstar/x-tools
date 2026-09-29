@@ -1,0 +1,11 @@
+stateDiagram-v2
+    [*] --> Created
+    Created --> Activating: host validation passed
+    Activating --> Activating: activate next module
+    Activating --> RollingBack: activation failed
+    RollingBack --> Stopped: reverse deactivate
+    Activating --> Frozen: all modules activated
+    Frozen --> Serving: transports started
+    Serving --> Stopping: signal or fatal host error
+    Stopping --> Stopped: bounded drain and reverse deactivate
+    Stopped --> [*]

@@ -48,9 +48,39 @@ fs.read 等价于 fs.read@1。增加兼容的可选字段可保留主版本；�
 
 环境不支持的能力仍保留在清单中并返回结构化不可用原因；不得静默消失或降级为不同语义。限制必须结构化表达，不使用无约束 map[string]any 作为正式契约。
 
+Capability 必须额外声明调用语义：命令或查询、是否幂等、是否支持取消、默认 deadline 和输入/输出大小限制。订阅型能力还必须声明事件 ID 与 overflow 后的重同步 capability。内核不根据命名猜测这些语义。
+
 ## 4. Invoke 管线
 
 所有外部调用和模块间同步业务调用必须经过唯一管线：
+
+```mermaid
+sequenceDiagram
+    participant Client as Web or CLI
+    participant Transport
+    participant Kernel as Invoker and Pipeline
+    participant ModuleA as Calling Module A
+    participant Handler as Target Module Handler
+
+    alt External call
+        Client->>Transport: protocol request plus credentials
+        Transport->>Transport: validate Host Origin and token
+        Transport->>Kernel: Invoke call with bound principal
+    else Internal module call
+        ModuleA->>Kernel: CapabilityClient call with module A bound
+    end
+
+    Kernel->>Kernel: resolve version and validate input
+    Kernel->>Kernel: authorize and check availability
+    Kernel->>Kernel: apply quota timeout and audit
+    Kernel->>Handler: invoke validated handler
+    Handler-->>Kernel: result or typed error
+    Kernel->>Kernel: validate output in development and tests
+    Kernel-->>Transport: result or stable error
+    Transport-->>Client: protocol response
+```
+
+[Mermaid 源文件](diagrams/04-invoke-sequence.mmd)
 
     recover / trace / deadline
     → 绑定服务端确立的 principal
@@ -73,6 +103,8 @@ EventBus 只用于进程内事实通知：每个订阅者有有界队列，发�
 
 事件至多一次、可丢失、无持久化、无重放、无跨进程保证。订阅者 panic 被隔离、记录并摘除。需要顺序、返回值、重试或必须送达时，必须使用 capability 或未来专门设计的可靠消息机制。
 
+订阅由服务端生成不可伪造的 subscription ID，并绑定连接、principal 与 capability。连接关闭、取消或模块停用时必须释放订阅；同一连接的订阅数受资源预算限制。服务端推送沿用原 capability 的授权边界，客户端不得通过自报 event ID 订阅未授权流。
+
 ## 6. 契约生成管线
 
 Go 输入/输出 struct 是 schema 唯一真源：
@@ -83,3 +115,5 @@ Go 输入/输出 struct 是 schema 唯一真源：
     └→ TypeScript types + Zod/Ajv validator
 
 生成单向进行，不允许 TS 回写 Go，不引入中立 IDL。生成物按 capability 主版本组织并提交仓库；CI 重新生成后必须无 diff。Web 前置校验只改善 UX，Go Invoke 校验才是安全边界。
+
+生成必须可复现：固定生成工具版本、对 schema 条目进行确定性排序、在生成物中记录来源和禁止手改标记。构建不得依赖开发机上的隐式全局工具。

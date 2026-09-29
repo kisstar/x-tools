@@ -20,6 +20,7 @@
 12. **插件信任描述真实**：一期外部 UI 插件是可信同上下文代码，客户端 scope 不是恶意代码隔离。
 13. **Fail-closed**：准入、校验、授权、过滤器和激活失败不放行残缺状态。
 14. **能力边界显式**：不可用、版本和 limits 可查询，不静默降级。
+15. **Workspace 边界对齐架构**：pnpm package 与 Go module 只沿允许方向依赖；composition roots 是唯一聚合实现的位置。
 
 ## 2. 自动化守卫
 
@@ -36,10 +37,35 @@
 | 事件有界 | 慢消费者、overflow、panic 隔离和状态重查测试 |
 | 插件故障隔离 | activate、entry 加载和 render 三类失败均不影响其他插件 |
 | 信任措辞 | 文档评审检查 scopedChannel/requires 未被描述为恶意代码隔离 |
+| 目录与命名 | 检查目录层级、ID 格式、重复 ID 和禁止的 common/utils 业务包 |
+| 协议一致性 | 同一 capability 的 WS/CLI 错误码和 schema 契约测试 |
+| 资源有界 | deadline/取消传播、输入输出大小、并发、订阅与进程树终止测试 |
+| Web workspace | pnpm workspace 图无环、workspace:* 无越层依赖；Turbo dry-run 任务图符合 codegen/build/test 顺序 |
+| Go workspace | go.work use 清单完整；workspace 全测 + 每个 module 在 GOWORK=off 下 tidy/check/test |
 
 简单 grep 可以作为补充诊断，但关键依赖规则应当由语法树或依赖图工具验证，避免注释、别名与生成代码造成误判。
 
 ## 3. 测试分层
+
+```mermaid
+flowchart LR
+    Change[Architecture or Code Change]
+    Static[Static Architecture Guards]
+    Unit[Kernel and Contract Unit Tests]
+    Component[Isolated Module Tests]
+    Integration[HTTP and WS Integration Tests]
+    E2E[Minimal End to End Tests]
+    Review{All required evidence passes}
+    Accept[Accept Change]
+    Reject[Fix or Reject]
+
+    Change --> Static --> Unit --> Component --> Integration --> E2E --> Review
+    Review -->|Yes| Accept
+    Review -->|No| Reject
+    Reject --> Change
+```
+
+[Mermaid 源文件](diagrams/06-verification-loop.mmd)
 
 1. **静态架构测试**：依赖、包边界、生成物和禁用 API。
 2. **单元测试**：registry、生命周期状态机、Invoke 各步骤、版本解析、event overflow。
@@ -48,3 +74,9 @@
 5. **少量 E2E**：CLI 启动服务、Web 完成一次调用、UI 插件失败降级。
 
 发布前至少证明：新增模块不改 kernel、所有架构守卫通过、契约生成无差异、负向准入测试通过、单个 handler/UI 插件故障不扩散。
+
+## 4. 需求到证据的追踪
+
+新增或修改任何 MUST/MUST NOT 时，必须在同一变更中指定自动化测试、静态守卫或人工评审证据；没有可执行证据的硬约束不能只停留在正文。架构测试应输出违反规则的源文件、依赖边和对应不变式编号，便于修复。
+
+代码评审说明至少列出受影响的不变式、运行时场景与验证命令。若因项目尚未落地而无法自动验证，必须创建明确的实现验收项，而不是把“后续补测试”作为完成状态。

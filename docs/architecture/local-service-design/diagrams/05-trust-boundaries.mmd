@@ -1,0 +1,25 @@
+flowchart TB
+    WebCode[Built-in UI plus Trusted UI Plugins]
+    CLI[Local CLI]
+    Admission[Connection Admission]
+    Pipeline[Invoke Security Boundary]
+    Handler[Capability Handler]
+    OS[Local OS and File System]
+
+    WebCode -->|same web-session authority| Admission
+    CLI -->|cli-session| Admission
+    Admission -->|server-established principal| Pipeline
+    Pipeline -->|validated and authorized call| Handler
+    Handler -->|module-specific bounded access| OS
+
+    UntrustedPlugin[Untrusted Plugin Code]
+    UntrustedPlugin -.->|not supported in phase one| WebCode
+
+    classDef trusted fill:#FFE66D,stroke:#F08C00,color:#000
+    classDef boundary fill:#FFB4A2,stroke:#C92A2A,color:#000
+    classDef runtime fill:#4ECDC4,stroke:#0B7285,color:#000
+    classDef unsupported fill:#E9ECEF,stroke:#868E96,color:#000,stroke-dasharray:5 5
+    class WebCode,CLI trusted
+    class Admission,Pipeline boundary
+    class Handler,OS runtime
+    class UntrustedPlugin unsupported

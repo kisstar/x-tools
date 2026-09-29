@@ -22,11 +22,56 @@
 
 manifest 至少包含 ID、版本、xTools engine 范围、runtimes = [ui]、所需 capability 及 UI 贡献物。未知字段可以忽略以便前向兼容；关键字段缺失、ID 冲突、engine 不兼容或 entry 越出插件根目录时拒绝加载并报告原因。
 
+```toml
+id = "com.example.hash-tool"
+name = "Hash Tool"
+version = "0.1.0"
+runtimes = ["ui"]
+requires = ["fs.read@1", "storage.get@1"]
+
+[engines]
+xtools = "^1"
+
+[[contributes.viewContainers]]
+id = "hash"
+title = "Hash"
+order = 30
+
+[[contributes.views]]
+containerId = "hash"
+id = "hash.main"
+slot = "content"
+entry = "ui/index.js"
+```
+
 requires 的作用仅是依赖声明、兼容性检查、能力发现、UX 置灰与审计提示。它不是服务端可证明的插件级授权，因为同一页面上下文不能可靠判断一次调用来自哪个插件。
+
+插件发现必须确定性执行：按规范化插件 ID 排序后校验和加载；外部插件不得占用内置 ID；任意重复 ID 都拒绝相关外部插件并报告冲突来源，不采用“最后一个覆盖”。entry 与资源路径必须解析后仍位于该插件根目录。
 
 ## 3. Principal 与授权
 
 服务端只信任自己能够确立的主体：
+
+```mermaid
+flowchart TB
+    WebCode[Built-in UI plus Trusted UI Plugins]
+    CLI[Local CLI]
+    Admission[Connection Admission]
+    Pipeline[Invoke Security Boundary]
+    Handler[Capability Handler]
+    OS[Local OS and File System]
+
+    WebCode -->|same web-session authority| Admission
+    CLI -->|cli-session| Admission
+    Admission -->|server-established principal| Pipeline
+    Pipeline -->|validated and authorized call| Handler
+    Handler -->|module-specific bounded access| OS
+
+    UntrustedPlugin[Untrusted Plugin Code]
+    UntrustedPlugin -.->|not supported in phase one| WebCode
+```
+
+[Mermaid 源文件](diagrams/05-trust-boundaries.mmd)
 
 - web-session：整个浏览器页面连接；内置 UI 与外部 UI 插件无法安全区分；
 - cli-session：通过本机凭证连接的 CLI；
@@ -48,11 +93,17 @@ requires 的作用仅是依赖声明、兼容性检查、能力发现、UX 置�
 
 追加 Origin 会扩大攻击面，必须显式配置。连接准入不得提供总开关。Transport 负责协议握手，但只能产出受内核认可的连接信息；业务授权仍在 Invoke 管线完成。
 
+Session token 文件必须以仅当前用户可读写的原子方式创建，每次 start 轮换；服务退出时尽力删除。静态页面不得把 token 放进 URL、持久化浏览器存储或可被第三方资源读取的位置。Web 页面不得加载第三方脚本；否则同页面可信边界失效。
+
 ## 5. 文件与命令能力
 
 文件 capability 默认限制在配置的根目录内，并使用规范化后的真实路径判断边界，防止父目录与符号链接逃逸。
 
+路径校验必须覆盖不存在目标的父目录解析与检查后使用前被替换的竞争条件。涉及写入/删除时应优先使用目录句柄相对操作或在打开后验证真实目标；仅做字符串前缀判断不合格。
+
 Shell capability 必须结构化区分 executable 与 argv，禁止经字符串拼接隐式进入 shell；提权或无界文件访问不得暴露给 web-session。
+
+命令执行默认不继承全部环境变量；环境、工作目录、最大输出、运行时长与进程树终止策略都必须显式受限。输出达到上限时返回可诊断的 resource_exhausted，而不是无限缓冲。
 
 更细的能力安全策略属于对应模块契约，但不得绕过统一 schema、authorization、limit 和 audit 管线。
 

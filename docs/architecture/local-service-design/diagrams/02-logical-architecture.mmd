@@ -1,0 +1,49 @@
+flowchart TB
+    Contracts[L0 Contracts]
+
+    subgraph Web[Web pnpm workspace managed by Turborepo]
+        WebApp[apps web Composition Root]
+        BuiltinUI[Built-in UI Modules]
+        WebKernel[Web Runtime Kernel]
+        ExternalUI[Trusted External UI Plugins]
+        Channel[IChannel and Host Adapter]
+        WebApp --> BuiltinUI
+        WebApp --> WebKernel
+        WebApp --> Channel
+        BuiltinUI --> WebKernel
+        ExternalUI --> WebKernel
+        BuiltinUI --> Channel
+        ExternalUI --> Channel
+    end
+
+    Admission[Host plus Origin plus Session Token]
+
+    subgraph Go[Go workspace with multiple modules]
+        GoHost[cmd xtools Composition Root]
+        Transports[L3 Transport Modules]
+        Kernel[L1 Go Runtime Kernel]
+        Modules[L2 Capability Modules]
+        GoContracts[L0 Go Contracts Module]
+        GoHost --> Transports
+        GoHost --> Modules
+        GoHost --> Kernel
+        Transports -->|Invoker only| Kernel
+        Modules -->|Register and Invoke| Kernel
+        Kernel --> GoContracts
+        Transports --> GoContracts
+        Modules --> GoContracts
+    end
+
+    Channel -->|WS JSON-RPC| Admission
+    Admission --> Transports
+    Contracts --> WebKernel
+    Contracts --> GoContracts
+
+    classDef kernel fill:#4ECDC4,stroke:#0B7285,color:#000
+    classDef module fill:#FFE66D,stroke:#F08C00,color:#000
+    classDef boundary fill:#FFB4A2,stroke:#C92A2A,color:#000
+    classDef base fill:#A8DADC,stroke:#1864AB,color:#000
+    class WebKernel,Kernel kernel
+    class BuiltinUI,ExternalUI,Transports,Modules module
+    class Admission boundary
+    class Contracts,Channel,WebApp,GoHost,GoContracts base

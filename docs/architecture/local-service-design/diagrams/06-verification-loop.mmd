@@ -1,0 +1,24 @@
+flowchart LR
+    Change[Architecture or Code Change]
+    Static[Static Architecture Guards]
+    Unit[Kernel and Contract Unit Tests]
+    Component[Isolated Module Tests]
+    Integration[HTTP and WS Integration Tests]
+    E2E[Minimal End to End Tests]
+    Review{All required evidence passes}
+    Accept[Accept Change]
+    Reject[Fix or Reject]
+
+    Change --> Static --> Unit --> Component --> Integration --> E2E --> Review
+    Review -->|Yes| Accept
+    Review -->|No| Reject
+    Reject --> Change
+
+    classDef process fill:#A8DADC,stroke:#1864AB,color:#000
+    classDef decision fill:#FFE66D,stroke:#F08C00,color:#000
+    classDef success fill:#95D5B2,stroke:#2D6A4F,color:#000
+    classDef error fill:#FFB4A2,stroke:#C92A2A,color:#000
+    class Change,Static,Unit,Component,Integration,E2E process
+    class Review decision
+    class Accept success
+    class Reject error

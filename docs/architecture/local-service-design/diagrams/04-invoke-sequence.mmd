@@ -1,0 +1,23 @@
+sequenceDiagram
+    participant Client as Web or CLI
+    participant Transport
+    participant Kernel as Invoker and Pipeline
+    participant ModuleA as Calling Module A
+    participant Handler as Target Module Handler
+
+    alt External call
+        Client->>Transport: protocol request plus credentials
+        Transport->>Transport: validate Host Origin and token
+        Transport->>Kernel: Invoke call with bound principal
+    else Internal module call
+        ModuleA->>Kernel: CapabilityClient call with module A bound
+    end
+
+    Kernel->>Kernel: resolve version and validate input
+    Kernel->>Kernel: authorize and check availability
+    Kernel->>Kernel: apply quota timeout and audit
+    Kernel->>Handler: invoke validated handler
+    Handler-->>Kernel: result or typed error
+    Kernel->>Kernel: validate output in development and tests
+    Kernel-->>Transport: result or stable error
+    Transport-->>Client: protocol response

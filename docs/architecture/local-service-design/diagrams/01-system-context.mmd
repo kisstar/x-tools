@@ -1,0 +1,24 @@
+flowchart LR
+    User([Developer or Agent])
+    Browser[Web Application]
+    CLI[xtools CLI]
+    OS[Local OS and File System]
+
+    subgraph Boundary[xTools on one machine]
+        Service[Go Local Service]
+    end
+
+    User -->|Complex interaction| Browser
+    User -->|Process management or scripts| CLI
+    Browser -->|HTTP static plus WS JSON-RPC| Service
+    CLI -->|WS JSON-RPC| Service
+    Service -->|Bounded local capabilities| OS
+
+    classDef actor fill:#FFE66D,stroke:#F08C00,color:#000
+    classDef client fill:#A8DADC,stroke:#1864AB,color:#000
+    classDef service fill:#4ECDC4,stroke:#0B7285,color:#000
+    classDef external fill:#E9ECEF,stroke:#495057,color:#000
+    class User actor
+    class Browser,CLI client
+    class Service service
+    class OS external
