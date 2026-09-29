@@ -10,6 +10,7 @@ import { DefaultTopNavigation } from './renderers/top-navigation.tsx'
 const id = createModuleId('workbench.shell')
 const root = createSlotId('root')
 const regionSlots = ['top-navigation', 'primary-navigation', 'secondary-navigation', 'content', 'detail', 'overlay'] as const
+const contributionSlots = ['containers', 'views', 'navigation'] as const
 const renderers: RendererDescriptor[] = [
   { region: 'top-navigation', id: createRendererId('workbench.default.top-navigation'), major: 1, component: DefaultTopNavigation },
   { region: 'primary-navigation', id: createRendererId('workbench.default.primary-navigation'), major: 1, component: DefaultPrimaryNavigation },
@@ -24,6 +25,7 @@ export const workbenchShell: UiModule = {
     ctx.declareSlot({ id: root, ownerId: id, kind: 'single', scope: 'root', major: 1 })
     ctx.contribute(root, { id: 'workbench.shell.root', ownerId: id, value: AppShell })
     for (const name of regionSlots) ctx.declareSlot({ id: createSlotId(`workbench.${name}`), parentId: root, ownerId: id, kind: name === 'overlay' ? 'list' : 'keyed', scope: 'root', major: 1 })
+    for (const name of contributionSlots) ctx.declareSlot({ id: createSlotId(`workbench.${name}`), parentId: root, ownerId: id, kind: name === 'views' ? 'keyed' : 'list', scope: 'root', major: 1 })
     for (const renderer of renderers) ctx.registerRenderer(renderer)
   },
   deactivate() {},
