@@ -80,6 +80,10 @@ importers:
       '@xtools/ui-contracts':
         specifier: workspace:*
         version: link:../ui-contracts
+    devDependencies:
+      vitest:
+        specifier: 3.2.4
+        version: 3.2.4
 
 packages:
 
