@@ -4,4 +4,6 @@
   "type": "module",
   "exports": { ".": "./src/index.ts" },
   "scripts": { "build": "tsc -p tsconfig.json", "lint": "eslint --no-error-on-unmatched-pattern src", "test": "vitest run", "typecheck": "tsc -p tsconfig.json" }
+  ,"devDependencies": { "@types/react": "19.1.12", "vitest": "3.2.4" },
+  "peerDependencies": { "react": "19.1.1" }
 }
