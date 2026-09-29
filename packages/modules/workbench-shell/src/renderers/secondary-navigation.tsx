@@ -1,0 +1,3 @@
+import type { NavigationNode, SecondaryNavigationProps } from '@xtools/ui-contracts'
+const Entry = ({ node, onNavigate }: { node: NavigationNode; onNavigate: (route: string) => void }) => <li><button disabled={!node.availability.available} onClick={() => node.kind === 'item' && node.route && onNavigate(node.route)}>{node.title}</button>{node.children.length > 0 && <ul>{node.children.map(child => <Entry key={child.id} node={child} onNavigate={onNavigate} />)}</ul>}</li>
+export const DefaultSecondaryNavigation = ({ navigation, actions }: SecondaryNavigationProps) => <nav><ul>{navigation.roots.map(node => <Entry key={node.id} node={node} onNavigate={actions.navigate} />)}</ul></nav>

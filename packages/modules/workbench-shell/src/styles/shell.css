@@ -1,0 +1,7 @@
+.xt-shell { display: grid; grid-template: var(--xt-header-height) 1fr / var(--xt-primary-nav-width) var(--xt-secondary-nav-width) minmax(400px, 1fr) var(--xt-detail-width); height: 100dvh; color: var(--xt-text-primary); background: var(--xt-surface-base); }
+.xt-region { min-width: 0; overflow: auto; }
+.xt-top-navigation { grid-column: 1 / -1; border-bottom: 1px solid var(--xt-border-default); }
+.xt-primary-navigation { grid-column: 1; border-right: 1px solid var(--xt-border-default); }
+.xt-secondary-navigation { grid-column: 2; min-width: 160px; max-width: 320px; border-right: 1px solid var(--xt-border-default); }
+.xt-content { grid-column: 3; }
+.xt-detail { grid-column: 4; min-width: 240px; max-width: 480px; border-left: 1px solid var(--xt-border-default); }

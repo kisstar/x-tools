@@ -1,0 +1,11 @@
+:root {
+  --xt-header-height: 52px;
+  --xt-primary-nav-width: 64px;
+  --xt-secondary-nav-width: 200px;
+  --xt-detail-width: 320px;
+  --xt-surface-base: #fafafa;
+  --xt-surface-raised: #fff;
+  --xt-border-default: #e5e5e5;
+  --xt-text-primary: #171717;
+  --xt-brand-primary: #7c3aed;
+}
