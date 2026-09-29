@@ -16,3 +16,5 @@ node_modules
 # build output
 dist
 release
+.turbo/
+coverage/
