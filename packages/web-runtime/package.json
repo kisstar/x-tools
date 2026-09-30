@@ -5,5 +5,5 @@
   "exports": { ".": "./src/index.ts" },
   "scripts": { "build": "tsc -p tsconfig.json", "lint": "eslint --no-error-on-unmatched-pattern src", "test": "vitest run", "typecheck": "tsc -p tsconfig.json" },
   "dependencies": { "@xtools/ui-contracts": "workspace:*" }
-  ,"devDependencies": { "vitest": "3.2.4" }
+  ,"devDependencies": { "vitest": "catalog:" }
 }
