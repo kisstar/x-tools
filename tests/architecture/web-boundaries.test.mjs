@@ -42,6 +42,14 @@ test('UI 模块之间没有实现依赖', async () => {
   }
 })
 
+test('生产入口不引用测试插件 fixture', async () => {
+  for (const file of await filesUnder('apps/web')) {
+    if (file.endsWith('.test.ts') || file.endsWith('.test.tsx') || file.includes('/test/')) continue
+    const text = await readFile(file, 'utf8')
+    assert.doesNotMatch(text, /test-plugins|test\/fixtures/u, relative('.', file))
+  }
+})
+
 test('package 依赖图遵循 runtime、adapter、module、app 方向', async () => {
   const manifests = ['packages/web-runtime/package.json', 'packages/adapter-ws/package.json', 'packages/modules/workbench-shell/package.json', 'apps/web/package.json']
   for (const path of manifests) {
