@@ -1,6 +1,5 @@
-import { AppShell } from '@xtools/module-workbench-shell'
-import type { RendererDescriptor, RenderPlan } from '@xtools/ui-contracts'
+import type { RendererDescriptor, RenderPlan, RootContribution } from '@xtools/ui-contracts'
 
-export function App({ plan, renderers }: { readonly plan: RenderPlan; readonly renderers: ReadonlyMap<string, RendererDescriptor> }) {
-  return <AppShell plan={plan} renderers={renderers} />
+export function App({ root: Root, plan, renderers }: { readonly root: RootContribution; readonly plan: RenderPlan; readonly renderers: ReadonlyMap<string, RendererDescriptor> }) {
+  return <Root plan={plan} renderers={renderers} />
 }

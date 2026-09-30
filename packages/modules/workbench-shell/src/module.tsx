@@ -6,6 +6,7 @@ import { DefaultDetail } from './renderers/detail.tsx'
 import { DefaultPrimaryNavigation } from './renderers/primary-navigation.tsx'
 import { DefaultSecondaryNavigation } from './renderers/secondary-navigation.tsx'
 import { DefaultTopNavigation } from './renderers/top-navigation.tsx'
+import { CommandPaletteOverlay } from './command-palette.tsx'
 
 const id = createModuleId('workbench.shell')
 const root = createSlotId('root')
@@ -26,6 +27,7 @@ export const workbenchShell: UiModule = {
     ctx.contribute(root, { id: 'workbench.shell.root', ownerId: id, value: AppShell })
     for (const name of regionSlots) ctx.declareSlot({ id: createSlotId(`workbench.${name}`), parentId: root, ownerId: id, kind: name === 'overlay' ? 'list' : 'keyed', scope: 'root', major: 1 })
     for (const name of contributionSlots) ctx.declareSlot({ id: createSlotId(`workbench.${name}`), parentId: root, ownerId: id, kind: name === 'views' ? 'keyed' : 'list', scope: 'root', major: 1 })
+    ctx.contribute(createSlotId('workbench.overlay'), { id: 'workbench.command-palette', ownerId: id, value: { id: 'workbench.command-palette', component: CommandPaletteOverlay } })
     for (const renderer of renderers) ctx.registerRenderer(renderer)
   },
   deactivate() {},

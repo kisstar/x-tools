@@ -1,3 +1,5 @@
 export * from './app-shell.tsx'
+export * from './command-palette.tsx'
 export * from './module.tsx'
 export * from './renderer-host.tsx'
+export * from './settings-panel.tsx'

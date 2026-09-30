@@ -1,11 +1,43 @@
 :root {
-  --xt-header-height: 52px;
-  --xt-primary-nav-width: 64px;
+  color-scheme: light;
+  --xt-header-height: 48px;
+  --xt-primary-nav-width: 56px;
   --xt-secondary-nav-width: 200px;
   --xt-detail-width: 320px;
   --xt-surface-base: #fafafa;
   --xt-surface-raised: #fff;
+  --xt-surface-overlay: #f5f5f5;
+  --xt-surface-elevated: #eee;
   --xt-border-default: #e5e5e5;
+  --xt-border-strong: #d4d4d4;
   --xt-text-primary: #171717;
+  --xt-text-secondary: #525252;
+  --xt-text-tertiary: #737373;
+  --xt-text-inverse: #fff;
   --xt-brand-primary: #7c3aed;
+  --xt-brand-primary-hover: #6d28d9;
+  --xt-brand-primary-soft: #ede9fe;
+  --xt-radius-xs: 4px;
+  --xt-radius-sm: 6px;
+  --xt-radius-md: 8px;
+  --xt-radius-lg: 12px;
+  --xt-spacing-xs: 8px;
+  --xt-spacing-sm: 12px;
+  --xt-spacing-md: 16px;
+  --xt-spacing-lg: 24px;
+  --xt-font-sans: Inter, system-ui, -apple-system, sans-serif;
+  --xt-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+.theme-aurora-dark {
+  color-scheme: dark;
+  --xt-surface-base: #09090f;
+  --xt-surface-raised: #11111a;
+  --xt-surface-overlay: #181824;
+  --xt-surface-elevated: #20202e;
+  --xt-border-default: #29293a;
+  --xt-border-strong: #3a3a50;
+  --xt-text-primary: #f5f5ff;
+  --xt-text-secondary: #b4b4c6;
+  --xt-text-tertiary: #85859a;
+  --xt-brand-primary-soft: #7c3aed26;
 }

@@ -5,6 +5,10 @@
   "scripts": { "build": "vite build", "dev": "vite", "lint": "eslint --no-error-on-unmatched-pattern src", "test": "vitest run", "typecheck": "tsc -p tsconfig.json" },
   "dependencies": {
     "@xtools/adapter-ws": "workspace:*",
+    "@xtools/contracts": "workspace:*",
+    "@xtools/module-recent-tools": "workspace:*",
+    "@xtools/module-workbench-home": "workspace:*",
+    "@xtools/module-workbench-settings": "workspace:*",
     "@xtools/module-workbench-shell": "workspace:*",
     "@xtools/ui-contracts": "workspace:*",
     "@xtools/web-runtime": "workspace:*",
