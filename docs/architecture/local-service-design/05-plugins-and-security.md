@@ -20,7 +20,7 @@
 
 ## 2. 外部 UI 插件 manifest
 
-manifest 至少包含 ID、版本、xTools engine 范围、runtimes = [ui]、所需 capability 及 UI 贡献物。未知字段可以忽略以便前向兼容；关键字段缺失、ID 冲突、engine 不兼容或 entry 越出插件根目录时拒绝加载并报告原因。
+manifest 至少包含 ID、版本、xTools engine 范围、runtimes = [ui]、所需 capability 及 UI 贡献物。UI 贡献可以声明 ViewContainer、View、结构化导航、命令、区域 renderer 及其拥有的子 Slot；引用其他插件容器时只记录稳定 ID，不声明实现依赖。未知字段可以忽略以便前向兼容；关键字段缺失、ID 冲突、engine 不兼容或 entry 越出插件根目录时拒绝加载并报告原因。
 
 ```toml
 id = "com.example.hash-tool"
@@ -45,6 +45,8 @@ entry = "ui/index.js"
 ```
 
 requires 的作用仅是依赖声明、兼容性检查、能力发现、UX 置灰与审计提示。它不是服务端可证明的插件级授权，因为同一页面上下文不能可靠判断一次调用来自哪个插件。
+
+区域 renderer、类型化 Slot、受限输入和 ErrorBoundary 只提供组合约束与故障隔离。renderer 即使只收到收窄 props，仍运行在同一页面上下文；文档、UI 和注释不得把该收窄描述为恶意代码隔离或服务端插件级授权。
 
 插件发现必须确定性执行：按规范化插件 ID 排序后校验和加载；外部插件不得占用内置 ID；任意重复 ID 都拒绝相关外部插件并报告冲突来源，不采用“最后一个覆盖”。entry 与资源路径必须解析后仍位于该插件根目录。
 

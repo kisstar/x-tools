@@ -21,6 +21,8 @@
 13. **Fail-closed**：准入、校验、授权、过滤器和激活失败不放行残缺状态。
 14. **能力边界显式**：不可用、版本和 limits 可查询，不静默降级。
 15. **Workspace 边界对齐架构**：pnpm package 与 Go module 只沿允许方向依赖；composition roots 是唯一聚合实现的位置。
+16. **所有者声明类型化 Slot**：runtime 只内建 `root`；子 Slot 由父贡献所有者声明和渲染，贡献归属插件生命周期，注册表首帧前 freeze。
+17. **renderer 显式绑定**：每个区域使用独立契约，按 Shell、容器、用户全局和工作区层解析；显式无效引用不得静默回退或由加载顺序覆盖。
 
 ## 2. 自动化守卫
 
@@ -42,6 +44,12 @@
 | 资源有界 | deadline/取消传播、输入输出大小、并发、订阅与进程树终止测试 |
 | Web workspace | pnpm workspace 图无环、workspace:* 无越层依赖；Turbo dry-run 任务图符合 codegen/build/test 顺序 |
 | Go workspace | go.work use 清单完整；workspace 全测 + 每个 module 在 GOWORK=off 下 tidy/check/test |
+| root 与 Slot 所有权 | Task 4 `slot-registry.test.ts` 验证唯一 root、父所有者声明权、基数、生命周期级联和 freeze |
+| renderer 绑定 | Task 5 `binding-resolver.test.ts` 验证四层优先级、区域/版本兼容和无效引用不回退 |
+| URL 导航真源 | Task 7 `composition.test.tsx` 验证 hash URL 驱动容器/View，store 不保存 active route |
+| UI 模块实现隔离 | Task 2 `web-boundaries.test.mjs` 解析 package graph 与 import，拒绝模块横向实现依赖 |
+| 持久偏好边界 | Task 10 `preferences-controller.test.ts` 与架构守卫证明只经 IChannel，拒绝 localStorage |
+| Shell Fail-closed | Task 7 `composition.test.tsx` 验证必需 Shell 失败只保留启动诊断页 |
 
 简单 grep 可以作为补充诊断，但关键依赖规则应当由语法树或依赖图工具验证，避免注释、别名与生成代码造成误判。
 

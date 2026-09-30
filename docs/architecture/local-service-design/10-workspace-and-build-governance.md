@@ -19,11 +19,12 @@
 ## 2. pnpm workspace
 
 - 根 package.json 与所有 workspace package 必须 private: true，除非另有独立发布 ADR。
-- pnpm-workspace.yaml 只包含明确模式：apps/*、packages/*、packages/modules/*。
+- pnpm-workspace.yaml 只包含明确模式：apps/*、packages/*、packages/modules/*；其中 `packages/ui-contracts` 是手写 UI 扩展契约，`packages/contracts` 是生成的跨端 capability 契约。
 - 仓库内依赖统一使用 workspace:*；未在 package.json 声明的 phantom dependency 视为错误。
 - 全仓库只提交 pnpm-lock.yaml；禁止 package-lock.json、yarn.lock 或子目录 pnpm lockfile。
 - package.json exports 是公共 API 边界；其他 package 不得 deep import src/ 内部路径。
 - workspace 依赖图必须无环；packages/modules/* 之间禁止依赖。
+- packages/web-runtime 不得依赖 React、router 或具体 UI module；packages/modules/* 只能依赖 web-runtime、ui-contracts、生成 contracts 和经批准的 UI 技术库。
 
 ## 3. Turborepo
 

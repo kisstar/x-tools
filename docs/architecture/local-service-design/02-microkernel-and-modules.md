@@ -18,6 +18,8 @@ Web 内核必须且只能承担五类 runtime 职责：生成契约的装载与�
 
 导航骨架、工具大全、命令面板、设置页和具体工具均为 UI 模块，不属于 Web 内核。
 
+Web runtime 只内建唯一抽象根 Slot `root`，不得包含具体区域名或默认界面。Web 宿主在 composition root 中声明必需 UI 模块；默认 `workbench.shell` 占据 `root` 并声明工作台区域。Shell 缺失、重复或激活失败必须在挂载正常 UI 前 Fail-closed，宿主只保留不含业务扩展点的最小启动诊断页。Slot、renderer 与 RenderPlan 的详细规则见 [04-web-cli-and-hosts.md](04-web-cli-and-hosts.md)。
+
 ### 1.3 逻辑架构
 
 ```mermaid
@@ -106,6 +108,8 @@ Web 服务宿主通常要求 HTTP、WS、静态资源及其准入控制均已装
 DependsOn 只决定激活与停机顺序。它不是授权声明，不允许模块 import 其依赖模块。Provides 只允许列出经架构批准的技术 service token。
 
 Web UI 模块采用对称的 manifest / activate / deactivate 生命周期。两侧内置模块都走常规注册与生命周期路径，不得通过包级 init() 偷偷注册。
+
+UI 模块激活产生的 Slot 声明和贡献必须归属当前模块。激活失败时 Web runtime 必须逆序撤销该模块的未完成贡献；所有必需 UI 模块激活且贡献图校验成功后才 freeze 注册表并挂载根 UI。
 
 ## 5. ActivationContext
 

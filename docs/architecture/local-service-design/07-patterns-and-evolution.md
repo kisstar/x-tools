@@ -50,7 +50,7 @@
 |---|---|---|
 | Adapter | 采用 | HTTP/WS/MCP transport 与各宿主 IChannel adapter |
 | Bridge | 采用 | IChannel 抽象与宿主 transport 实现独立演进 |
-| Composite | 局部采用 | 只用于 UI container/view 树，不泛化进 kernel |
+| Composite | 局部采用 | 用于所有者声明的类型化 Slot/container/view 树，不泛化进 kernel |
 | Decorator | 采用 | Invoke filters 与 view ErrorBoundary |
 | Facade | 采用 | ActivationContext、CapabilityClient、IChannel |
 | Flyweight | 不采用 | 无大量同质细粒度对象导致的已测内存问题 |
@@ -60,7 +60,7 @@
 
 | 模式 | 决策 | 落点或原因 |
 |---|---|---|
-| Strategy | 采用 | 宿主 channel/transport 实现可替换 |
+| Strategy | 采用 | 宿主 channel/transport 与各工作台区域 renderer 实现可替换 |
 | Template Method | 局部采用 | Kernel 固定生命周期骨架、模块提供 hooks；以组合表达，不引入继承体系 |
 | Observer | 采用 | EventBus、服务推送与 React subscription hooks |
 | Iterator | 不采用 | 语言原生集合遍历足够 |

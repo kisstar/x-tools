@@ -14,6 +14,7 @@
 ## 核心决策
 
 - Go 与 Web 内核都只包含 runtime 机制；业务、协议实现和界面全部位于模块或插件。
+- Web 工作台采用所有者声明的类型化 Slot 树；必需 Shell 插件占据唯一 `root`，区域 renderer 由显式绑定选择。
 - 一期采用单 Go 进程的强隔离模块化单体，不采用微服务。
 - 模块之间零横向 import；同步业务走 capability，技术协作走 DI，事实通知走 event。
 - Host Composition Root 在内核外选择模块并声明宿主必需模块。
@@ -22,6 +23,7 @@
 - 仓库采用 polyglot monorepo：Web 使用 pnpm workspace + Turborepo，Go 使用多 go.mod + 根 go.work。
 
 该工程组织决策及备选方案见 [ADR-001](../decisions/001-polyglot-workspace-management.md)。
+插件化工作台的 Slot 与 renderer 决策见 [ADR-002](../decisions/002-pluginized-web-workbench.md)。
 
 ## 按主题读取
 
@@ -52,5 +54,6 @@
 | 创建目录、移动包或命名新契约 | 02 + 06 + 08 |
 | 设计错误码、日志、超时或配置 | 03 + 05 + 09 |
 | 修改 pnpm/Turbo/go.work 或新增 workspace 成员 | 06 + 08 + 10 |
+| 修改 Web Shell、Slot、renderer 或工作台偏好 | 02 + 04 + 05 + 06 + 08 + 09 |
 
 除非进行全架构评审，不应默认一次读取全部主题文件。

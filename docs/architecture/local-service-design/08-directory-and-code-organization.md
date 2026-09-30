@@ -48,11 +48,12 @@
     apps/
     └── web/                        # @xtools/web；Web composition root
     packages/
+    ├── ui-contracts/               # @xtools/ui-contracts；手写 Web 进程内 UI 扩展契约
     ├── web-runtime/                # @xtools/web-runtime；Web 微内核
     ├── contracts/                  # @xtools/contracts；生成的 TS 契约
     ├── adapter-ws/                 # @xtools/adapter-ws；IChannel 实现
     └── modules/                    # 每个内置 UI 模块一个 package
-        ├── workbench/
+        ├── workbench-shell/
         └── <tool>/
     tests/
     ├── architecture/               # Go module 与 pnpm package 边界守卫
@@ -71,8 +72,9 @@
 | go/transports/<id> | 协议编解码、连接准入、Invoker 调用 | kernel、contracts、协议库 | capability module、handler、可写 registry |
 | cmd/xtools | Go composition root、模块选择、required IDs、CLI | contracts、kernel、modules、transports | 被其他 Go module 反向依赖 |
 | packages/contracts | 生成的 TS 类型和校验器 | 运行时校验库 | app、runtime、adapter、UI module |
-| packages/web-runtime | Web runtime 端口与机制 | contracts、通用技术库 | app、modules、具体 adapter |
-| packages/modules/<id> | UI 贡献与交互 | web-runtime、contracts | 其他 UI module、具体 adapter/app |
+| packages/ui-contracts | 手写的 Web 进程内 Slot、renderer、容器、导航与 RenderPlan 契约 | React 类型 | React 实现、router、app、runtime、adapter、UI module 实现 |
+| packages/web-runtime | Web runtime 端口与机制 | ui-contracts、生成 contracts、通用技术库 | React、router、app、modules、具体 adapter、具体区域名 |
+| packages/modules/<id> | UI 贡献与交互 | web-runtime、ui-contracts、生成 contracts | 其他 UI module、具体 adapter/app |
 | packages/adapter-<id> | IChannel 等端口实现 | web-runtime、contracts、协议/宿主 API | UI module、app |
 | apps/web | Web composition root | runtime、contracts、adapters、modules | 被 packages 反向依赖 |
 
@@ -94,6 +96,8 @@ go/kernel 可以公开模块实现所需的最小端口，但不得公开内部�
 模块包对外只需暴露 composition root 使用的构造函数；不要暴露 handler、repository 或内部模型供其他模块调用。模块之间共享的是 capability/schema，不是 Go 实现类型。
 
 Web workspace package 必须声明 private: true，并通过 package.json exports 只暴露公共入口。仓库内依赖统一使用 workspace:*；未在 package.json 声明的 phantom dependency 视为错误。不要把单个 React 组件拆成 package，拆包单位必须对应 runtime、adapter、app 或独立 UI module 边界。
+
+`packages/ui-contracts` 与 `packages/contracts` 不得合并：前者是多个 UI 插件消费的手写进程内扩展契约，后者只能是 Go capability struct 单向生成的跨端契约。具体 React renderer 留在所属 UI module；ui-contracts 只允许引用 React 类型。
 
 ## 5. 命名规范
 
