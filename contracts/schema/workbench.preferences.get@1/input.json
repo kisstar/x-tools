@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+  "title": "workbench.preferences.get@1 input",
+  "type": "object",
+  "additionalProperties": false
+}

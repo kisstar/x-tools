@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+  "title": "workbench.preferences.get@1 output",
+  "type": "object",
+  "properties": {
+    "preferences": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+      "title": "Preferences",
+      "type": "object",
+      "properties": {
+        "global": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+          "title": "Global",
+          "type": "object",
+          "properties": {
+            "containers": {
+              "$schema": "https://json-schema.org/draft/2020-12/schema",
+              "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+              "title": "Containers",
+              "type": "object",
+              "additionalProperties": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                "title": "Containers",
+                "type": "object",
+                "properties": {
+                  "navigation": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                    "title": "Navigation",
+                    "type": "object",
+                    "properties": {
+                      "hidden": {
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                        "title": "Hidden",
+                        "type": "array",
+                        "additionalProperties": false,
+                        "items": {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                          "title": "Hidden",
+                          "type": "string",
+                          "additionalProperties": false
+                        }
+                      },
+                      "order": {
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                        "title": "Order",
+                        "type": "array",
+                        "additionalProperties": false,
+                        "items": {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                          "title": "Order",
+                          "type": "string",
+                          "additionalProperties": false
+                        }
+                      },
+                      "pinned": {
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                        "title": "Pinned",
+                        "type": "array",
+                        "additionalProperties": false,
+                        "items": {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                          "title": "Pinned",
+                          "type": "string",
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "regions": {
+                    "$schema": "https://json-schema.org/draft/2020-12/schema",
+                    "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                    "title": "Regions",
+                    "type": "object",
+                    "additionalProperties": {
+                      "$schema": "https://json-schema.org/draft/2020-12/schema",
+                      "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                      "title": "Regions",
+                      "type": "object",
+                      "properties": {
+                        "rendererId": {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                          "title": "RendererID",
+                          "type": "string",
+                          "additionalProperties": false
+                        },
+                        "visible": {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                          "title": "Visible",
+                          "type": "boolean",
+                          "additionalProperties": false
+                        },
+                        "width": {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                          "title": "Width",
+                          "type": "number",
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "revision": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+          "title": "Revision",
+          "type": "string",
+          "additionalProperties": false
+        },
+        "workspaces": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+          "title": "Workspaces",
+          "type": "object",
+          "additionalProperties": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+            "title": "Workspaces",
+            "type": "object",
+            "properties": {
+              "containers": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                "title": "Containers",
+                "type": "object",
+                "additionalProperties": {
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                  "title": "Containers",
+                  "type": "object",
+                  "properties": {
+                    "navigation": {
+                      "$schema": "https://json-schema.org/draft/2020-12/schema",
+                      "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                      "title": "Navigation",
+                      "type": "object",
+                      "properties": {
+                        "hidden": {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                          "title": "Hidden",
+                          "type": "array",
+                          "additionalProperties": false,
+                          "items": {
+                            "$schema": "https://json-schema.org/draft/2020-12/schema",
+                            "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                            "title": "Hidden",
+                            "type": "string",
+                            "additionalProperties": false
+                          }
+                        },
+                        "order": {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                          "title": "Order",
+                          "type": "array",
+                          "additionalProperties": false,
+                          "items": {
+                            "$schema": "https://json-schema.org/draft/2020-12/schema",
+                            "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                            "title": "Order",
+                            "type": "string",
+                            "additionalProperties": false
+                          }
+                        },
+                        "pinned": {
+                          "$schema": "https://json-schema.org/draft/2020-12/schema",
+                          "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                          "title": "Pinned",
+                          "type": "array",
+                          "additionalProperties": false,
+                          "items": {
+                            "$schema": "https://json-schema.org/draft/2020-12/schema",
+                            "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                            "title": "Pinned",
+                            "type": "string",
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "regions": {
+                      "$schema": "https://json-schema.org/draft/2020-12/schema",
+                      "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                      "title": "Regions",
+                      "type": "object",
+                      "additionalProperties": {
+                        "$schema": "https://json-schema.org/draft/2020-12/schema",
+                        "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                        "title": "Regions",
+                        "type": "object",
+                        "properties": {
+                          "rendererId": {
+                            "$schema": "https://json-schema.org/draft/2020-12/schema",
+                            "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                            "title": "RendererID",
+                            "type": "string",
+                            "additionalProperties": false
+                          },
+                          "visible": {
+                            "$schema": "https://json-schema.org/draft/2020-12/schema",
+                            "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                            "title": "Visible",
+                            "type": "boolean",
+                            "additionalProperties": false
+                          },
+                          "width": {
+                            "$schema": "https://json-schema.org/draft/2020-12/schema",
+                            "$comment": "Code generated from Go contracts; DO NOT EDIT.",
+                            "title": "Width",
+                            "type": "number",
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "revision",
+        "global",
+        "workspaces"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "preferences"
+  ],
+  "additionalProperties": false
+}

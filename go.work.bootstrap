@@ -1,0 +1,7 @@
+# Internal module replacements used only by scripts/verify-go-modules.sh.
+# Production go.mod files intentionally contain no local replace directives.
+replace github.com/kisstar/x-tools/go/contracts => ./go/contracts
+replace github.com/kisstar/x-tools/go/kernel => ./go/kernel
+replace github.com/kisstar/x-tools/go/modules/preferences => ./go/modules/preferences
+replace github.com/kisstar/x-tools/go/transports/http => ./go/transports/http
+replace github.com/kisstar/x-tools/go/transports/ws => ./go/transports/ws
