@@ -12,6 +12,7 @@ node_modules
 # build output
 dist
 release
+.turbo
 
 # Tauri / Rust
 target/
@@ -21,3 +22,10 @@ hosts/tauri/gen/
 # Electron
 hosts/electron/dist
 hosts/electron/release
+
+# AI
+.superpowers/
+docs/superpowers/
+
+# Test
+test-results/
