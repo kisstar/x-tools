@@ -2,8 +2,8 @@
 set -eu
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-export GOCACHE=${GOCACHE:-/tmp/xtools-go-cache}
-export GOMODCACHE=${GOMODCACHE:-/tmp/xtools-go-modcache}
+export GOCACHE="${GOCACHE:-/tmp/xtools-go-cache}"
+export GOMODCACHE="${GOMODCACHE:-/tmp/xtools-go-modcache}"
 go work edit -json | awk '
   /\"DiskPath\"/ {
     value = $2

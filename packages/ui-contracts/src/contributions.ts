@@ -12,5 +12,5 @@ export interface ViewContribution {
   readonly containerId: ContainerId
   readonly title: string
   readonly component: RendererComponent<ContentRendererProps>
-  readonly availability?: { readonly available: boolean; readonly reason?: string }
+  readonly availability?: { readonly available: boolean, readonly reason?: string }
 }

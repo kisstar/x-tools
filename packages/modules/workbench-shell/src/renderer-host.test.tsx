@@ -1,6 +1,7 @@
-import { expect, it } from 'vitest'
+import type { RendererDescriptor } from '@xtools/ui-contracts'
 import { render, screen } from '@testing-library/react'
-import { createContainerId, createRendererId, createViewId, type RendererDescriptor } from '@xtools/ui-contracts'
+import { createContainerId, createRendererId, createViewId } from '@xtools/ui-contracts'
+import { expect, it } from 'vitest'
 import { RendererHost } from './renderer-host.tsx'
 
 it('区域 renderer 可以返回任意 React 节点', () => {

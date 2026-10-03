@@ -1,0 +1,30 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: ESLint
+      glob: '*.{js,mjs,ts,tsx,json,jsonc,yaml,yml,md,css,html}'
+      exclude:
+        - pnpm-lock.yaml
+        - contracts/schema/**
+        - packages/contracts/src/generated.ts
+      run: pnpm exec eslint --no-warn-ignored --max-warnings=0 -- {staged_files}
+
+    - name: Stylelint
+      glob: '*.css'
+      run: pnpm exec stylelint -- {staged_files}
+
+    - name: Go format
+      glob: '*.go'
+      run: sh scripts/check-go-format.sh {staged_files}
+
+    - name: shfmt
+      glob: '*.sh'
+      run: node scripts/shfmt.mjs --check {staged_files}
+
+pre-push:
+  jobs:
+    - name: Web quality
+      run: pnpm lint && pnpm typecheck && pnpm test
+
+    - name: Go quality
+      run: sh scripts/test-go-workspace.sh && sh scripts/lint-go.sh

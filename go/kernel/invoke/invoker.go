@@ -20,20 +20,27 @@ type AuditRecord struct {
 	Duration     time.Duration
 	ResultCode   string
 }
-type Options struct{ Audit func(AuditRecord) }
-type Invoker struct {
-	snapshot registry.Snapshot
-	options  Options
-	mu       sync.Mutex
-	inFlight map[contracts.CapabilityID]int
-}
+type (
+	Options struct{ Audit func(AuditRecord) }
+	Invoker struct {
+		snapshot registry.Snapshot
+		options  Options
+		mu       sync.Mutex
+		inFlight map[contracts.CapabilityID]int
+	}
+)
 
 func New(snapshot registry.Snapshot) *Invoker { return NewWithOptions(snapshot, Options{}) }
 func NewWithOptions(snapshot registry.Snapshot, options Options) *Invoker {
 	return &Invoker{snapshot: snapshot, options: options, inFlight: make(map[contracts.CapabilityID]int)}
 }
 
-func (invoker *Invoker) Invoke(parent context.Context, principal contracts.Principal, id contracts.CapabilityID, input []byte) (output []byte, invokeErr *contracts.Error) {
+func (invoker *Invoker) Invoke(
+	parent context.Context,
+	principal contracts.Principal,
+	id contracts.CapabilityID,
+	input []byte,
+) (output []byte, invokeErr *contracts.Error) {
 	traceID := newTraceID()
 	started := time.Now()
 	defer func() {
@@ -42,7 +49,15 @@ func (invoker *Invoker) Invoke(parent context.Context, principal contracts.Princ
 			if invokeErr != nil {
 				resultCode = string(invokeErr.Code)
 			}
-			invoker.options.Audit(AuditRecord{CapabilityID: id, Principal: principal, TraceID: traceID, Duration: time.Since(started), ResultCode: resultCode})
+			invoker.options.Audit(
+				AuditRecord{
+					CapabilityID: id,
+					Principal:    principal,
+					TraceID:      traceID,
+					Duration:     time.Since(started),
+					ResultCode:   resultCode,
+				},
+			)
 		}
 	}()
 	defer func() {
@@ -82,14 +97,24 @@ func (invoker *Invoker) Invoke(parent context.Context, principal contracts.Princ
 			return nil, deadlineError(traceID)
 		}
 		if !state.Available {
-			return nil, contracts.NewError(contracts.CodeUnavailable, "capability unavailable", traceID, map[string]any{"reason": state.Reason})
+			return nil, contracts.NewError(
+				contracts.CodeUnavailable,
+				"capability unavailable",
+				traceID,
+				map[string]any{"reason": state.Reason},
+			)
 		}
 	}
 	if ctx.Err() != nil {
 		return nil, deadlineError(traceID)
 	}
 	if !invoker.acquire(id, capability.Contract.MaxConcurrent) {
-		return nil, contracts.NewError(contracts.CodeResourceExhausted, "capability concurrency limit reached", traceID, nil)
+		return nil, contracts.NewError(
+			contracts.CodeResourceExhausted,
+			"capability concurrency limit reached",
+			traceID,
+			nil,
+		)
 	}
 	defer invoker.release(id)
 	type result struct {
@@ -115,18 +140,33 @@ func (invoker *Invoker) Invoke(parent context.Context, principal contracts.Princ
 			return nil, withTrace(value.err, traceID)
 		}
 		if int64(len(value.output)) > capability.Contract.MaxOutputBytes {
-			return nil, contracts.NewError(contracts.CodeResourceExhausted, "output exceeds capability limit", traceID, nil)
+			return nil, contracts.NewError(
+				contracts.CodeResourceExhausted,
+				"output exceeds capability limit",
+				traceID,
+				nil,
+			)
 		}
 		if capability.ValidateOutput != nil {
 			if err := capability.ValidateOutput(value.output); err != nil {
-				return nil, contracts.NewError(contracts.CodeInternal, "capability produced invalid output", traceID, nil)
+				return nil, contracts.NewError(
+					contracts.CodeInternal,
+					"capability produced invalid output",
+					traceID,
+					nil,
+				)
 			}
 		}
 		return value.output, nil
 	}
 }
 
-func runAuthorizer(ctx context.Context, authorizer registry.Authorizer, principal contracts.Principal, input []byte) *contracts.Error {
+func runAuthorizer(
+	ctx context.Context,
+	authorizer registry.Authorizer,
+	principal contracts.Principal,
+	input []byte,
+) *contracts.Error {
 	completed := make(chan *contracts.Error, 1)
 	go func() { completed <- authorizer(ctx, principal, json.RawMessage(input)) }()
 	select {
@@ -136,6 +176,7 @@ func runAuthorizer(ctx context.Context, authorizer registry.Authorizer, principa
 		return err
 	}
 }
+
 func runAvailability(ctx context.Context, available registry.AvailabilityCheck) (contracts.Availability, bool) {
 	completed := make(chan contracts.Availability, 1)
 	go func() { completed <- available(ctx) }()
@@ -146,9 +187,11 @@ func runAvailability(ctx context.Context, available registry.AvailabilityCheck) 
 		return state, false
 	}
 }
+
 func deadlineError(traceID string) *contracts.Error {
 	return contracts.NewError(contracts.CodeDeadlineExceeded, "capability deadline exceeded", traceID, nil)
 }
+
 func (invoker *Invoker) acquire(id contracts.CapabilityID, limit int) bool {
 	invoker.mu.Lock()
 	defer invoker.mu.Unlock()
@@ -158,6 +201,7 @@ func (invoker *Invoker) acquire(id contracts.CapabilityID, limit int) bool {
 	invoker.inFlight[id]++
 	return true
 }
+
 func (invoker *Invoker) release(id contracts.CapabilityID) {
 	invoker.mu.Lock()
 	defer invoker.mu.Unlock()
@@ -173,9 +217,17 @@ func (invoker *Invoker) ModuleClient(moduleID string) (*CapabilityClient, error)
 	if moduleID == "" {
 		return nil, fmt.Errorf("module ID is required")
 	}
-	return &CapabilityClient{invoker: invoker, principal: contracts.Principal{Kind: contracts.PrincipalModule, ID: "module:" + moduleID}}, nil
+	return &CapabilityClient{
+		invoker:   invoker,
+		principal: contracts.Principal{Kind: contracts.PrincipalModule, ID: "module:" + moduleID},
+	}, nil
 }
-func (client *CapabilityClient) Invoke(ctx context.Context, id contracts.CapabilityID, input []byte) ([]byte, *contracts.Error) {
+
+func (client *CapabilityClient) Invoke(
+	ctx context.Context,
+	id contracts.CapabilityID,
+	input []byte,
+) ([]byte, *contracts.Error) {
 	return client.invoker.Invoke(ctx, client.principal, id, input)
 }
 
@@ -185,6 +237,7 @@ func withTrace(err *contracts.Error, traceID string) *contracts.Error {
 	}
 	return err
 }
+
 func newTraceID() string {
 	var value [8]byte
 	if _, err := rand.Read(value[:]); err != nil {

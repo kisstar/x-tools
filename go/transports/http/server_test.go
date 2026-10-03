@@ -14,7 +14,9 @@ import (
 
 func TestHealthDistinguishesLivenessAndReadiness(t *testing.T) {
 	ready := false
-	handler := httptransport.New(httptransport.Config{Assets: assets(), Token: "secret-token", Ready: func() bool { return ready }})
+	handler := httptransport.New(
+		httptransport.Config{Assets: assets(), Token: "secret-token", Ready: func() bool { return ready }},
+	)
 	assertStatus(t, handler, "/health/live", http.StatusOK)
 	assertStatus(t, handler, "/health/ready", http.StatusServiceUnavailable)
 	ready = true
@@ -22,14 +24,19 @@ func TestHealthDistinguishesLivenessAndReadiness(t *testing.T) {
 }
 
 func TestIndexInjectsEscapedSessionTokenAndLocksResourcesToSelf(t *testing.T) {
-	handler := httptransport.New(httptransport.Config{Assets: assets(), Token: `token"<&`, Ready: func() bool { return true }})
-	response := serve(handler, "/")
+	handler := httptransport.New(
+		httptransport.Config{Assets: assets(), Token: `token"<&`, Ready: func() bool { return true }},
+	)
+	response := serve(t, handler, "/")
 	body, _ := io.ReadAll(response.Result().Body)
 	text := string(body)
 	if !strings.Contains(text, `<meta name="xtools-session-token" content="token&#34;&lt;&amp;">`) {
 		t.Fatalf("token meta missing or unescaped: %s", text)
 	}
-	if csp := response.Header().Get("Content-Security-Policy"); !strings.Contains(csp, "default-src 'self'") || !strings.Contains(csp, "connect-src 'self' ws:") {
+	if csp := response.Header().Get(
+		"Content-Security-Policy",
+	); !strings.Contains(csp, "default-src 'self'") ||
+		!strings.Contains(csp, "connect-src 'self' ws:") {
 		t.Fatalf("CSP = %q", csp)
 	}
 	if response.Header().Get("Cache-Control") != "no-store" {
@@ -38,8 +45,10 @@ func TestIndexInjectsEscapedSessionTokenAndLocksResourcesToSelf(t *testing.T) {
 }
 
 func TestIndexRejectsUntrustedHostBeforeDisclosingToken(t *testing.T) {
-	handler := httptransport.New(httptransport.Config{Assets: assets(), Token: "secret-token", Port: 10312, Ready: func() bool { return true }})
-	request := httptest.NewRequest(http.MethodGet, "http://evil.example/", nil)
+	handler := httptransport.New(
+		httptransport.Config{Assets: assets(), Token: "secret-token", Port: 10312, Ready: func() bool { return true }},
+	)
+	request := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "http://evil.example/", nil)
 	request.Host = "evil.example"
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
@@ -52,13 +61,15 @@ func TestIndexRejectsUntrustedHostBeforeDisclosingToken(t *testing.T) {
 }
 
 func TestStaticAssetsServeAndUnknownRoutesFallBackToIndex(t *testing.T) {
-	handler := httptransport.New(httptransport.Config{Assets: assets(), Token: "token", Ready: func() bool { return true }})
-	response := serve(handler, "/assets/app.js")
+	handler := httptransport.New(
+		httptransport.Config{Assets: assets(), Token: "token", Ready: func() bool { return true }},
+	)
+	response := serve(t, handler, "/assets/app.js")
 	data, _ := io.ReadAll(response.Result().Body)
 	if string(data) != "console.log('ok')" {
 		t.Fatalf("asset = %q", data)
 	}
-	response = serve(handler, "/home/default")
+	response = serve(t, handler, "/home/default")
 	data, _ = io.ReadAll(response.Result().Body)
 	if !strings.Contains(string(data), "<main>workbench</main>") {
 		t.Fatalf("fallback = %q", data)
@@ -66,16 +77,24 @@ func TestStaticAssetsServeAndUnknownRoutesFallBackToIndex(t *testing.T) {
 }
 
 func assets() fs.FS {
-	return fstest.MapFS{"index.html": &fstest.MapFile{Data: []byte(`<html><head><!-- XTOOLS_RUNTIME --></head><body><main>workbench</main></body></html>`)}, "assets/app.js": &fstest.MapFile{Data: []byte(`console.log('ok')`)}}
+	return fstest.MapFS{
+		"index.html": &fstest.MapFile{
+			Data: []byte(`<html><head><!-- XTOOLS_RUNTIME --></head><body><main>workbench</main></body></html>`),
+		},
+		"assets/app.js": &fstest.MapFile{Data: []byte(`console.log('ok')`)},
+	}
 }
-func serve(handler http.Handler, target string) *httptest.ResponseRecorder {
+
+func serve(t *testing.T, handler http.Handler, target string) *httptest.ResponseRecorder {
+	t.Helper()
 	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, target, nil))
+	handler.ServeHTTP(recorder, httptest.NewRequestWithContext(t.Context(), http.MethodGet, target, nil))
 	return recorder
 }
+
 func assertStatus(t *testing.T, handler http.Handler, target string, want int) {
 	t.Helper()
-	response := serve(handler, target)
+	response := serve(t, handler, target)
 	if response.Code != want {
 		t.Fatalf("%s status = %d, want %d", target, response.Code, want)
 	}

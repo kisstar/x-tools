@@ -1,0 +1,63 @@
+{
+  "editor.formatOnSave": false,
+  "prettier.enable": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit",
+    "source.organizeImports": "never"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "json",
+    "jsonc",
+    "yaml",
+    "markdown",
+    "css",
+    "html"
+  ],
+  "eslint.workingDirectories": [
+    { "mode": "auto" }
+  ],
+  "eslint.rules.customizations": [
+    { "rule": "style/*", "severity": "off", "fixable": true },
+    { "rule": "format/*", "severity": "off", "fixable": true },
+    { "rule": "*-indent", "severity": "off", "fixable": true },
+    { "rule": "*-spacing", "severity": "off", "fixable": true },
+    { "rule": "*-order", "severity": "off", "fixable": true },
+    { "rule": "*quotes", "severity": "off", "fixable": true },
+    { "rule": "*semi", "severity": "off", "fixable": true }
+  ],
+  "stylelint.validate": ["css"],
+  "go.formatTool": "goimports",
+  "gopls": { "staticcheck": true },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go",
+    "editor.formatOnSave": true
+  },
+  "[shellscript]": {
+    "editor.defaultFormatter": "mkhl.shfmt",
+    "editor.formatOnSave": true
+  },
+  "yaml.schemaStore.enable": true,
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.{yml,yaml}"
+  },
+  "search.exclude": {
+    "**/.project.log/**": true,
+    "**/.turbo/**": true,
+    "**/coverage/**": true,
+    "**/dist/**": true,
+    "**/node_modules/**": true
+  },
+  "cSpell.words": [
+    "Antfu",
+    "golangci",
+    "kisstar",
+    "Lefthook",
+    "Stylelint",
+    "xtools"
+  ]
+}

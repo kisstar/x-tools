@@ -20,10 +20,13 @@ const (
 	UpdateID contracts.CapabilityID = "workbench.preferences.update@1"
 )
 
-type GetInput struct{}
-type GetOutput struct {
-	Preferences WorkbenchPreferences `json:"preferences"`
-}
+type (
+	GetInput  struct{}
+	GetOutput struct {
+		Preferences WorkbenchPreferences `json:"preferences"`
+	}
+)
+
 type UpdateInput struct {
 	ExpectedRevision string          `json:"expectedRevision" minLength:"1"`
 	Preferences      PreferenceState `json:"preferences"`
@@ -74,25 +77,93 @@ func New(paths ...string) *Module {
 	}
 	return module
 }
+
 func (module *Module) Register(target *registry.Registry) error {
 	if module.loadErr != nil {
 		return module.loadErr
 	}
-	getContract := capabilityContract(GetID, contracts.Query, true, GetInput{}, GetOutput{}, "workbench.preferences.read")
-	if err := target.Register(registry.Capability{Contract: getContract, ValidateInput: getContract.InputSchema.Validator(contracts.CodeInvalidArgument, "invalid preferences get input"), Authorize: authorizeWebOrModule, Available: available, Handler: module.get, ValidateOutput: getContract.OutputSchema.Validator(contracts.CodeInternal, "invalid preferences get output")}); err != nil {
+	getContract := capabilityContract(
+		GetID,
+		contracts.Query,
+		true,
+		GetInput{},
+		GetOutput{},
+		"workbench.preferences.read",
+	)
+	if err := target.Register(
+		registry.Capability{
+			Contract: getContract,
+			ValidateInput: getContract.InputSchema.Validator(
+				contracts.CodeInvalidArgument,
+				"invalid preferences get input",
+			),
+			Authorize: authorizeWebOrModule,
+			Available: available,
+			Handler:   module.get,
+			ValidateOutput: getContract.OutputSchema.Validator(
+				contracts.CodeInternal,
+				"invalid preferences get output",
+			),
+		},
+	); err != nil {
 		return err
 	}
-	updateContract := capabilityContract(UpdateID, contracts.Command, false, UpdateInput{}, UpdateOutput{}, "workbench.preferences.write")
-	return target.Register(registry.Capability{Contract: updateContract, ValidateInput: updateContract.InputSchema.Validator(contracts.CodeInvalidArgument, "invalid preferences update input"), Authorize: authorizeWebOrModule, Available: available, Handler: module.update, ValidateOutput: updateContract.OutputSchema.Validator(contracts.CodeInternal, "invalid preferences update output")})
+	updateContract := capabilityContract(
+		UpdateID,
+		contracts.Command,
+		false,
+		UpdateInput{},
+		UpdateOutput{},
+		"workbench.preferences.write",
+	)
+	return target.Register(
+		registry.Capability{
+			Contract: updateContract,
+			ValidateInput: updateContract.InputSchema.Validator(
+				contracts.CodeInvalidArgument,
+				"invalid preferences update input",
+			),
+			Authorize: authorizeWebOrModule,
+			Available: available,
+			Handler:   module.update,
+			ValidateOutput: updateContract.OutputSchema.Validator(
+				contracts.CodeInternal,
+				"invalid preferences update output",
+			),
+		},
+	)
 }
-func capabilityContract(id contracts.CapabilityID, kind contracts.CapabilityKind, idempotent bool, input, output any, permission contracts.Permission) contracts.CapabilityContract {
-	return contracts.CapabilityContract{ID: id, Kind: kind, Idempotent: idempotent, SupportsCancellation: true, DefaultDeadline: time.Second, MaxInputBytes: 256 << 10, MaxOutputBytes: 256 << 10, MaxConcurrent: 8, InputSchema: RuntimeSchema(input), OutputSchema: RuntimeSchema(output), Permissions: []contracts.Permission{permission}, Exposure: []contracts.Exposure{contracts.ExposureWebSocket, contracts.ExposureCLI}, Availability: contracts.Availability{Available: true}}
+
+func capabilityContract(
+	id contracts.CapabilityID,
+	kind contracts.CapabilityKind,
+	idempotent bool,
+	input, output any,
+	permission contracts.Permission,
+) contracts.CapabilityContract {
+	return contracts.CapabilityContract{
+		ID:                   id,
+		Kind:                 kind,
+		Idempotent:           idempotent,
+		SupportsCancellation: true,
+		DefaultDeadline:      time.Second,
+		MaxInputBytes:        256 << 10,
+		MaxOutputBytes:       256 << 10,
+		MaxConcurrent:        8,
+		InputSchema:          RuntimeSchema(input),
+		OutputSchema:         RuntimeSchema(output),
+		Permissions:          []contracts.Permission{permission},
+		Exposure:             []contracts.Exposure{contracts.ExposureWebSocket, contracts.ExposureCLI},
+		Availability:         contracts.Availability{Available: true},
+	}
 }
+
 func (module *Module) get(context.Context, []byte) ([]byte, *contracts.Error) {
 	module.mu.RLock()
 	defer module.mu.RUnlock()
 	return marshal(GetOutput{Preferences: module.snapshot()})
 }
+
 func (module *Module) update(_ context.Context, input []byte) ([]byte, *contracts.Error) {
 	var request UpdateInput
 	if err := json.Unmarshal(input, &request); err != nil {
@@ -102,7 +173,12 @@ func (module *Module) update(_ context.Context, input []byte) ([]byte, *contract
 	defer module.mu.Unlock()
 	current := strconv.FormatUint(module.revision, 10)
 	if request.ExpectedRevision != current {
-		return nil, contracts.NewError(contracts.CodeConflict, "preferences revision conflict", "", map[string]any{"currentRevision": current})
+		return nil, contracts.NewError(
+			contracts.CodeConflict,
+			"preferences revision conflict",
+			"",
+			map[string]any{"currentRevision": current},
+		)
 	}
 	module.revision++
 	previousState, previousRevision := module.state, module.revision-1
@@ -113,18 +189,26 @@ func (module *Module) update(_ context.Context, input []byte) ([]byte, *contract
 	}
 	return marshal(UpdateOutput{Preferences: module.snapshot()})
 }
+
 func emptyState() PreferenceState {
-	return PreferenceState{Global: PreferenceLayer{Containers: map[string]ContainerPreference{}}, Workspaces: map[string]PreferenceLayer{}}
+	return PreferenceState{
+		Global:     PreferenceLayer{Containers: map[string]ContainerPreference{}},
+		Workspaces: map[string]PreferenceLayer{},
+	}
 }
+
 func authorizeWebOrModule(_ context.Context, principal contracts.Principal, _ json.RawMessage) *contracts.Error {
-	if principal.Kind != contracts.PrincipalWebSession && principal.Kind != contracts.PrincipalCLISession && principal.Kind != contracts.PrincipalModule {
+	if principal.Kind != contracts.PrincipalWebSession && principal.Kind != contracts.PrincipalCLISession &&
+		principal.Kind != contracts.PrincipalModule {
 		return contracts.NewError(contracts.CodePermissionDenied, "principal cannot access preferences", "", nil)
 	}
 	return nil
 }
+
 func available(context.Context) contracts.Availability {
 	return contracts.Availability{Available: true}
 }
+
 func (module *Module) load() error {
 	if module.path == "" {
 		return nil
@@ -146,9 +230,12 @@ func (module *Module) load() error {
 	if err != nil {
 		return fmt.Errorf("decode preferences revision: %w", err)
 	}
-	module.revision, module.state = revision, cloneState(PreferenceState{Global: value.Global, Workspaces: value.Workspaces})
+	module.revision, module.state = revision, cloneState(
+		PreferenceState{Global: value.Global, Workspaces: value.Workspaces},
+	)
 	return nil
 }
+
 func (module *Module) persist() error {
 	if module.path == "" {
 		return nil
@@ -166,17 +253,17 @@ func (module *Module) persist() error {
 		return err
 	}
 	temporaryName := temporary.Name()
-	defer os.Remove(temporaryName)
+	defer func() { _ = os.Remove(temporaryName) }()
 	if err := temporary.Chmod(0o600); err != nil {
-		temporary.Close()
+		_ = temporary.Close()
 		return err
 	}
 	if _, err := temporary.Write(data); err != nil {
-		temporary.Close()
+		_ = temporary.Close()
 		return err
 	}
 	if err := temporary.Sync(); err != nil {
-		temporary.Close()
+		_ = temporary.Close()
 		return err
 	}
 	if err := temporary.Close(); err != nil {
@@ -187,10 +274,16 @@ func (module *Module) persist() error {
 	}
 	return os.Chmod(module.path, 0o600)
 }
+
 func (module *Module) snapshot() WorkbenchPreferences {
 	state := cloneState(module.state)
-	return WorkbenchPreferences{Revision: strconv.FormatUint(module.revision, 10), Global: state.Global, Workspaces: state.Workspaces}
+	return WorkbenchPreferences{
+		Revision:   strconv.FormatUint(module.revision, 10),
+		Global:     state.Global,
+		Workspaces: state.Workspaces,
+	}
 }
+
 func cloneState(state PreferenceState) PreferenceState {
 	data, _ := json.Marshal(state)
 	var cloned PreferenceState
@@ -203,6 +296,7 @@ func cloneState(state PreferenceState) PreferenceState {
 	}
 	return cloned
 }
+
 func marshal(value any) ([]byte, *contracts.Error) {
 	data, err := json.Marshal(value)
 	if err != nil {

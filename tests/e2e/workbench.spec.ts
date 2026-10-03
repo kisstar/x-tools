@@ -1,25 +1,32 @@
 import { expect, test } from '@playwright/test'
 
-type PreferenceState = { global: Record<string, unknown>; workspaces: Record<string, unknown> }
+interface PreferenceState { global: Record<string, unknown>, workspaces: Record<string, unknown> }
+interface RpcResponse { id?: number, result?: unknown, error?: { code: string, message: string } }
 
 async function updatePreferences(page: import('@playwright/test').Page, replacement: PreferenceState) {
-  await page.evaluate(async nextPreferences => {
+  await page.evaluate(async (nextPreferences) => {
     const token = document.querySelector<HTMLMetaElement>('meta[name="xtools-session-token"]')?.content
-    if (!token) throw new Error('missing session token')
+    if (token === undefined || token === '')
+      throw new Error('missing session token')
     const socket = new WebSocket(`ws://${location.host}/ws`, ['xtools', `xtools-token.${token}`])
-    const call = (id: number, method: string, params: unknown) => new Promise<unknown>((resolve, reject) => {
+    const call = async (id: number, method: string, params: unknown) => new Promise<unknown>((resolve, reject) => {
       const receive = (event: MessageEvent) => {
-        const response = JSON.parse(String(event.data))
-        if (response.id !== id) return
+        const response = JSON.parse(String(event.data)) as RpcResponse
+        if (response.id !== id)
+          return
         socket.removeEventListener('message', receive)
-        if (response.error) reject(new Error(`${response.error.code}: ${response.error.message}`))
+        if (response.error !== undefined)
+          reject(new Error(`${response.error.code}: ${response.error.message}`))
         else resolve(response.result)
       }
       socket.addEventListener('message', receive)
       socket.send(JSON.stringify({ jsonrpc: '2.0', id, method, params }))
     })
-    await new Promise<void>((resolve, reject) => { socket.addEventListener('open', () => resolve(), { once: true }); socket.addEventListener('error', () => reject(new Error('websocket failed')), { once: true }) })
-    const current = await call(1, 'workbench.preferences.get@1', {}) as { preferences: { revision: string; global: Record<string, unknown>; workspaces: Record<string, unknown> } }
+    await new Promise<void>((resolve, reject) => {
+      socket.addEventListener('open', () => resolve(), { once: true })
+      socket.addEventListener('error', () => reject(new Error('websocket failed')), { once: true })
+    })
+    const current = await call(1, 'workbench.preferences.get@1', {}) as { preferences: { revision: string, global: Record<string, unknown>, workspaces: Record<string, unknown> } }
     await call(2, 'workbench.preferences.update@1', { expectedRevision: current.preferences.revision, preferences: nextPreferences })
     socket.close()
   }, replacement)
@@ -52,7 +59,8 @@ test('命令面板可由快捷键打开且 Escape 关闭', async ({ page }) => {
 test('全局与工作区偏好经真实 capability 更新 revision', async ({ page }) => {
   await page.getByRole('button', { name: '设置' }).first().click()
   const revision = page.getByText(/当前 revision：\d+/)
-  const initial = Number((await revision.textContent())?.match(/\d+/)?.[0])
+  const revisionText = await revision.textContent()
+  const initial = Number(revisionText?.match(/\d+/)?.[0] ?? 0)
   await page.getByRole('checkbox', { name: '显示详情面板' }).uncheck()
   await expect(revision).toHaveText(`当前 revision：${initial + 1}`)
   await page.getByRole('tab', { name: '当前工作区' }).click()

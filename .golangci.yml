@@ -1,0 +1,38 @@
+version: '2'
+
+linters:
+  default: none
+  enable:
+    - bodyclose
+    - copyloopvar
+    - errcheck
+    - errorlint
+    - govet
+    - ineffassign
+    - loggercheck
+    - misspell
+    - noctx
+    - nolintlint
+    - sloglint
+    - sqlclosecheck
+    - staticcheck
+    - unconvert
+    - unparam
+    - unused
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+    - golines
+  settings:
+    golines:
+      max-len: 120
+      tab-len: 2
+      shorten-comments: false
+      reformat-tags: false
+      chain-split-dots: false
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

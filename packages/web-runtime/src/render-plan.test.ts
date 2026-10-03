@@ -1,5 +1,6 @@
+import type { NavigationContribution } from '@xtools/ui-contracts'
+import { createContainerId, createRendererId, createViewId } from '@xtools/ui-contracts'
 import { expect, it } from 'vitest'
-import { createContainerId, createRendererId, createViewId, type NavigationContribution } from '@xtools/ui-contracts'
 import { buildNavigationSnapshot } from './navigation-snapshot.ts'
 import { buildRenderPlan } from './render-plan.ts'
 
@@ -11,9 +12,12 @@ it('导航显隐和排序不改变节点 ID 与 route', () => {
 
 it('用显式路由输入生成不可变 RenderPlan', () => {
   const plan = buildRenderPlan({
-    activeContainerId: createContainerId('files'), activeViewId: createViewId('files.main'),
+    activeContainerId: createContainerId('files'),
+    activeViewId: createViewId('files.main'),
     regions: [{ regionId: 'content', rendererId: createRendererId('workbench.default.content'), props: {} }],
   })
   expect(plan.activeViewId).toBe('files.main')
-  expect(() => { (plan.regions.content as { rendererId?: string }).rendererId = 'changed' }).toThrow()
+  expect(() => {
+    (plan.regions.content as { rendererId?: string }).rendererId = 'changed'
+  }).toThrow()
 })

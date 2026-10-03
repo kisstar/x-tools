@@ -1,5 +1,5 @@
-import { expect, it, vi } from 'vitest'
 import { createModuleId, createSlotId } from '@xtools/ui-contracts'
+import { expect, it, vi } from 'vitest'
 import { WebRuntime } from './runtime.ts'
 
 it('必需模块激活失败时逆序回滚当前模块贡献', async () => {
@@ -44,5 +44,8 @@ it('可选模块激活失败只回滚自身并保留诊断，后续模块继续�
   ], [])
 
   expect(runtime.registrySnapshot().slots.map(slot => slot.definition.id)).toEqual(['feature.healthy.slot'])
-  expect(runtime.diagnostics()).toEqual([expect.objectContaining({ code: 'plugin_activation_failed', sourceId: failedId, message: expect.stringContaining('optional boom') })])
+  expect(runtime.diagnostics()).toHaveLength(1)
+  expect(runtime.diagnostics()[0]?.code).toBe('plugin_activation_failed')
+  expect(runtime.diagnostics()[0]?.sourceId).toBe(failedId)
+  expect(runtime.diagnostics()[0]?.message).toContain('optional boom')
 })

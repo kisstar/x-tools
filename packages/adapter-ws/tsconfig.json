@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "types": ["vitest/globals"], "lib": ["ES2023", "DOM"] },
+  "compilerOptions": { "lib": ["ES2023", "DOM"], "types": ["vitest/globals"] },
   "include": ["src/**/*.ts"]
 }

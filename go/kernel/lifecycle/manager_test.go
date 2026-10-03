@@ -19,12 +19,14 @@ type module struct {
 func (value module) Manifest() lifecycle.Manifest {
 	return lifecycle.Manifest{ID: value.id, DependsOn: value.dependencies}
 }
+
 func (value module) Activate(lifecycle.ActivationContext) error {
 	if value.activate != nil {
 		return value.activate()
 	}
 	return nil
 }
+
 func (value module) Deactivate(context.Context) error {
 	if value.deactivate != nil {
 		return value.deactivate()
@@ -35,8 +37,17 @@ func (value module) Deactivate(context.Context) error {
 func TestManagerActivatesTopologicallyAndStopsInReverse(t *testing.T) {
 	var order []string
 	modules := []lifecycle.Module{
-		module{id: "host", dependencies: []string{"runtime"}, activate: func() error { order = append(order, "activate host"); return nil }, deactivate: func() error { order = append(order, "deactivate host"); return nil }},
-		module{id: "runtime", activate: func() error { order = append(order, "activate runtime"); return nil }, deactivate: func() error { order = append(order, "deactivate runtime"); return nil }},
+		module{
+			id:           "host",
+			dependencies: []string{"runtime"},
+			activate:     func() error { order = append(order, "activate host"); return nil },
+			deactivate:   func() error { order = append(order, "deactivate host"); return nil },
+		},
+		module{
+			id:         "runtime",
+			activate:   func() error { order = append(order, "activate runtime"); return nil },
+			deactivate: func() error { order = append(order, "deactivate runtime"); return nil },
+		},
 	}
 	manager := lifecycle.New(modules)
 	if err := manager.Activate(context.Background(), []string{"host"}, lifecycle.ActivationContext{}); err != nil {
@@ -59,7 +70,9 @@ func TestManagerActivatesTopologicallyAndStopsInReverse(t *testing.T) {
 
 func TestManagerRejectsMissingRequiredModuleBeforeActivation(t *testing.T) {
 	activated := false
-	manager := lifecycle.New([]lifecycle.Module{module{id: "available", activate: func() error { activated = true; return nil }}})
+	manager := lifecycle.New(
+		[]lifecycle.Module{module{id: "available", activate: func() error { activated = true; return nil }}},
+	)
 	if err := manager.Activate(context.Background(), []string{"missing"}, lifecycle.ActivationContext{}); err == nil {
 		t.Fatal("Activate succeeded")
 	}
@@ -71,7 +84,11 @@ func TestManagerRejectsMissingRequiredModuleBeforeActivation(t *testing.T) {
 func TestManagerRollsBackActivatedModulesOnFailure(t *testing.T) {
 	var order []string
 	manager := lifecycle.New([]lifecycle.Module{
-		module{id: "first", activate: func() error { order = append(order, "activate first"); return nil }, deactivate: func() error { order = append(order, "deactivate first"); return nil }},
+		module{
+			id:         "first",
+			activate:   func() error { order = append(order, "activate first"); return nil },
+			deactivate: func() error { order = append(order, "deactivate first"); return nil },
+		},
 		module{id: "second", dependencies: []string{"first"}, activate: func() error { return errors.New("failed") }},
 	})
 	if err := manager.Activate(context.Background(), nil, lifecycle.ActivationContext{}); err == nil {
@@ -87,7 +104,9 @@ func TestManagerRollsBackActivatedModulesOnFailure(t *testing.T) {
 }
 
 func TestManagerRejectsDependencyCycle(t *testing.T) {
-	manager := lifecycle.New([]lifecycle.Module{module{id: "a", dependencies: []string{"b"}}, module{id: "b", dependencies: []string{"a"}}})
+	manager := lifecycle.New(
+		[]lifecycle.Module{module{id: "a", dependencies: []string{"b"}}, module{id: "b", dependencies: []string{"a"}}},
+	)
 	if err := manager.Activate(context.Background(), nil, lifecycle.ActivationContext{}); err == nil {
 		t.Fatal("Activate accepted dependency cycle")
 	}

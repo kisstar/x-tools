@@ -1,12 +1,12 @@
 go 1.26
 
 use (
-  ./cmd/xtools
-  ./go/contracts
-  ./go/kernel
-  ./go/modules/preferences
-  ./go/transports/http
-  ./go/transports/ws
+	./cmd/xtools
+	./go/contracts
+	./go/kernel
+	./go/modules/preferences
+	./go/transports/http
+	./go/transports/ws
 )
 
 replace github.com/kisstar/x-tools/go/contracts v0.0.0-00010101000000-000000000000 => ./go/contracts

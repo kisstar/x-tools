@@ -18,12 +18,19 @@ func TestComposeRejectsMissingRequiredModuleBeforeServing(t *testing.T) {
 }
 
 func TestComposeFreezesPreferencesMethodsBeforeReadiness(t *testing.T) {
-	host, err := compose(hostConfig{Assets: testAssets(), Token: "token", PreferencesPath: filepath.Join(t.TempDir(), "preferences.json"), RequiredModules: []string{"workbench.preferences"}})
+	host, err := compose(
+		hostConfig{
+			Assets:          testAssets(),
+			Token:           "token",
+			PreferencesPath: filepath.Join(t.TempDir(), "preferences.json"),
+			RequiredModules: []string{"workbench.preferences"},
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 	recorder := httptest.NewRecorder()
-	host.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/health/ready", nil))
+	host.ServeHTTP(recorder, httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/health/ready", nil))
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("ready status = %d", recorder.Code)
 	}
@@ -31,14 +38,28 @@ func TestComposeFreezesPreferencesMethodsBeforeReadiness(t *testing.T) {
 
 func TestComposeLoadsPreferencesFromInjectedUserConfigurationPath(t *testing.T) {
 	filename := filepath.Join(t.TempDir(), "preferences.json")
-	first, err := compose(hostConfig{Assets: testAssets(), Token: "token", PreferencesPath: filename, RequiredModules: []string{preferencesModuleID}})
+	first, err := compose(
+		hostConfig{
+			Assets:          testAssets(),
+			Token:           "token",
+			PreferencesPath: filename,
+			RequiredModules: []string{preferencesModuleID},
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if err := first.Stop(t.Context()); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := compose(hostConfig{Assets: testAssets(), Token: "token", PreferencesPath: filename, RequiredModules: []string{preferencesModuleID}}); err != nil {
+	if _, err := compose(
+		hostConfig{
+			Assets:          testAssets(),
+			Token:           "token",
+			PreferencesPath: filename,
+			RequiredModules: []string{preferencesModuleID},
+		},
+	); err != nil {
 		t.Fatalf("restart compose failed: %v", err)
 	}
 }
@@ -68,5 +89,7 @@ func TestWriteSessionTokenUsesPrivatePermissionsAndReplacesOldValue(t *testing.T
 }
 
 func testAssets() fs.FS {
-	return fstest.MapFS{"index.html": &fstest.MapFile{Data: []byte(`<html><head><!-- XTOOLS_RUNTIME --></head></html>`)}}
+	return fstest.MapFS{
+		"index.html": &fstest.MapFile{Data: []byte(`<html><head><!-- XTOOLS_RUNTIME --></head></html>`)},
+	}
 }

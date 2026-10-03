@@ -17,6 +17,7 @@ func main() {
 		fail(err)
 	}
 }
+
 func repositoryRoot() (string, error) {
 	directory, err := os.Getwd()
 	if err != nil {

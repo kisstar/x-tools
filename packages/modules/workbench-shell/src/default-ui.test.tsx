@@ -1,9 +1,11 @@
+import type { ContentRendererProps, DetailRendererProps, NavigationSnapshot, PrimaryNavigationProps, SecondaryNavigationProps, TopNavigationProps } from '@xtools/ui-contracts'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
-  createContainerId, createViewId,
-  type ContentRendererProps, type DetailRendererProps, type NavigationSnapshot, type PrimaryNavigationProps, type SecondaryNavigationProps, type TopNavigationProps,
+  createContainerId,
+  createViewId,
+
 } from '@xtools/ui-contracts'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DefaultContent } from './renderers/content.tsx'
 import { DefaultDetail } from './renderers/detail.tsx'
 import { DefaultPrimaryNavigation } from './renderers/primary-navigation.tsx'
@@ -26,8 +28,9 @@ afterEach(() => {
 })
 
 describe('默认工作台 renderer', () => {
-  it('Header 提供品牌、工作区上下文、命令入口和全局动作', () => {
-    render(<DefaultTopNavigation {...({ containerId, navigation, collapsed: false, actions } satisfies TopNavigationProps)} />)
+  it('header 提供品牌、工作区上下文、命令入口和全局动作', () => {
+    const props = { containerId, navigation, collapsed: false, actions } satisfies TopNavigationProps
+    render(<DefaultTopNavigation {...props} />)
     expect(screen.getByText('xTools')).toBeInTheDocument()
     expect(screen.getByText('个人工作区')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /搜索工具或运行命令/ })).toBeInTheDocument()
@@ -35,7 +38,7 @@ describe('默认工作台 renderer', () => {
     expect(screen.getByRole('button', { name: '通知' })).toBeInTheDocument()
   })
 
-  it('NavBar 与 SubNav 使用结构化导航并执行真实 navigate action', () => {
+  it('navBar 与 SubNav 使用结构化导航并执行真实 navigate action', () => {
     const props = { containerId, navigation, collapsed: false, actions }
     const { unmount } = render(<DefaultPrimaryNavigation {...(props satisfies PrimaryNavigationProps)} />)
     fireEvent.click(screen.getByRole('button', { name: '首页' }))
@@ -47,8 +50,13 @@ describe('默认工作台 renderer', () => {
     expect(screen.getByRole('button', { name: '不可用' })).toBeDisabled()
   })
 
-  it('Content 与 Detail 呈现完整默认内容而不是空占位', () => {
-    const view = ({ viewId }: ContentRendererProps) => <article data-view={viewId}><h1>你的本地工具工作台</h1><p>最近使用</p></article>
+  it('content 与 Detail 呈现完整默认内容而不是空占位', () => {
+    const view = ({ viewId }: ContentRendererProps) => (
+      <article data-view={viewId}>
+        <h1>你的本地工具工作台</h1>
+        <p>最近使用</p>
+      </article>
+    )
     const { unmount } = render(<DefaultContent {...({ containerId, viewId: createViewId('home.overview'), view, actions } satisfies ContentRendererProps)} />)
     expect(screen.getByRole('heading', { name: '你的本地工具工作台' })).toBeInTheDocument()
     expect(screen.getByText('最近使用')).toBeInTheDocument()

@@ -1,7 +1,6 @@
 # sys
 .DS_Store
 .idea/
-.vscode/
 
 # ai
 .superpowers/
@@ -9,6 +8,7 @@ superpowers/
 
 # log
 *.log
+.project.log/
 
 # dependencies
 node_modules

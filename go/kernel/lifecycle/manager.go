@@ -22,12 +22,15 @@ type Manifest struct {
 	ID        string
 	DependsOn []string
 }
-type ActivationContext struct{}
-type Module interface {
-	Manifest() Manifest
-	Activate(ActivationContext) error
-	Deactivate(context.Context) error
-}
+type (
+	ActivationContext struct{}
+	Module            interface {
+		Manifest() Manifest
+		Activate(ActivationContext) error
+		Deactivate(context.Context) error
+	}
+)
+
 type Manager struct {
 	mu      sync.Mutex
 	state   State
@@ -42,11 +45,13 @@ func New(modules []Module) *Manager {
 	}
 	return &Manager{state: Created, modules: values}
 }
+
 func (manager *Manager) State() State {
 	manager.mu.Lock()
 	defer manager.mu.Unlock()
 	return manager.state
 }
+
 func (manager *Manager) Activate(ctx context.Context, required []string, activationContext ActivationContext) error {
 	manager.mu.Lock()
 	defer manager.mu.Unlock()
@@ -73,6 +78,7 @@ func (manager *Manager) Activate(ctx context.Context, required []string, activat
 	manager.state = Frozen
 	return nil
 }
+
 func (manager *Manager) StartServing() error {
 	manager.mu.Lock()
 	defer manager.mu.Unlock()
@@ -82,6 +88,7 @@ func (manager *Manager) StartServing() error {
 	manager.state = Serving
 	return nil
 }
+
 func (manager *Manager) Stop(ctx context.Context) error {
 	manager.mu.Lock()
 	defer manager.mu.Unlock()
@@ -92,6 +99,7 @@ func (manager *Manager) Stop(ctx context.Context) error {
 	manager.rollback(ctx)
 	return nil
 }
+
 func (manager *Manager) rollback(ctx context.Context) {
 	for index := len(manager.active) - 1; index >= 0; index-- {
 		_ = manager.active[index].Deactivate(ctx)
@@ -99,6 +107,7 @@ func (manager *Manager) rollback(ctx context.Context) {
 	manager.active = nil
 	manager.state = Stopped
 }
+
 func resolve(modules map[string]Module) ([]Module, error) {
 	ids := make([]string, 0, len(modules))
 	for id := range modules {

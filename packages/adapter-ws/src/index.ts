@@ -4,8 +4,8 @@ export interface WebSocketLike {
   onmessage: ((event: { readonly data: unknown }) => void) | null
   onclose: ((event: unknown) => void) | null
   onerror: ((event: unknown) => void) | null
-  send(data: string): void
-  close(): void
+  send: (data: string) => void
+  close: () => void
 }
 
 interface RpcError {
@@ -20,14 +20,14 @@ interface RpcResponse {
   readonly result?: unknown
   readonly error?: RpcError
   readonly method?: string
-  readonly params?: { readonly eventId?: string; readonly payload?: unknown }
+  readonly params?: { readonly eventId?: string, readonly payload?: unknown }
 }
 
 interface Pending {
   readonly resolve: (value: unknown) => void
   readonly reject: (reason: ChannelError) => void
 }
-interface QueuedCall { readonly send: () => void; readonly reject: (reason: ChannelError) => void }
+interface QueuedCall { readonly send: () => void, readonly reject: (reason: ChannelError) => void }
 
 export class ChannelError extends Error {
   constructor(
@@ -51,16 +51,24 @@ export class WebSocketChannel {
 
   constructor(private readonly socket: WebSocketLike) {
     socket.onopen = () => {
-      if (this.closed) return
+      if (this.closed)
+        return
       this.connected = true
       for (const call of this.queued.splice(0)) call.send()
     }
-    socket.onmessage = event => { if (typeof event.data === 'string') this.receive(event.data) }
-    socket.onclose = () => { this.failPending('WebSocket 连接已关闭') }
-    socket.onerror = () => { this.failPending('WebSocket 连接失败') }
+    socket.onmessage = (event) => {
+      if (typeof event.data === 'string')
+        this.receive(event.data)
+    }
+    socket.onclose = () => {
+      this.failPending('WebSocket 连接已关闭')
+    }
+    socket.onerror = () => {
+      this.failPending('WebSocket 连接失败')
+    }
   }
 
-  call<TIn, TOut>(capabilityId: string, input: TIn): Promise<TOut> {
+  async call<TIn, TOut>(capabilityId: string, input: TIn): Promise<TOut> {
     if (this.closed) {
       return Promise.reject(this.unavailable('WebSocket 尚未连接或已关闭'))
     }
@@ -68,22 +76,27 @@ export class WebSocketChannel {
     return new Promise<TOut>((resolve, reject) => {
       this.pending.set(id, { resolve: value => resolve(value as TOut), reject })
       const send = (): void => this.socket.send(JSON.stringify({ jsonrpc: '2.0', id, method: capabilityId, params: input }))
-      if (this.connected) send()
+      if (this.connected)
+        send()
       else this.queued.push({ send, reject })
     })
   }
 
   subscribe<T>(eventId: string, handler: (payload: T) => void): () => void {
     const handlers = this.subscribers.get(eventId) ?? new Set<(payload: unknown) => void>()
-    const wrapped = (payload: unknown): void => { handler(payload as T) }
+    const wrapped = (payload: unknown): void => {
+      handler(payload as T)
+    }
     handlers.add(wrapped)
     this.subscribers.set(eventId, handlers)
     let active = true
     return () => {
-      if (!active) return
+      if (!active)
+        return
       active = false
       handlers.delete(wrapped)
-      if (handlers.size === 0) this.subscribers.delete(eventId)
+      if (handlers.size === 0)
+        this.subscribers.delete(eventId)
     }
   }
 
@@ -95,19 +108,27 @@ export class WebSocketChannel {
     let response: RpcResponse
     try {
       response = JSON.parse(data) as RpcResponse
-    } catch {
+    }
+    catch {
       return
     }
     if (response.method === 'event' && response.params?.eventId !== undefined) {
       for (const handler of this.subscribers.get(response.params.eventId) ?? []) handler(response.params.payload)
       return
     }
-    if (response.id === undefined) return
+    if (response.id === undefined)
+      return
     const pending = this.pending.get(response.id)
-    if (pending === undefined) return
+    if (pending === undefined)
+      return
     this.pending.delete(response.id)
     if (response.error !== undefined) {
-      pending.reject(new ChannelError(response.error.code, response.error.message, response.error.traceId, response.error.details))
+      pending.reject(new ChannelError(
+        response.error.code,
+        response.error.message,
+        response.error.traceId,
+        response.error.details,
+      ))
       return
     }
     pending.resolve(response.result)
@@ -142,6 +163,7 @@ export function createBrowserWebSocketChannel(options: BrowserChannelOptions): W
 
 export function readSessionToken(documentValue: Pick<Document, 'querySelector'>): string {
   const token = documentValue.querySelector<HTMLMetaElement>('meta[name="xtools-session-token"]')?.content
-  if (token === undefined || token === '') throw new ChannelError('unauthenticated', '页面缺少会话凭证', 'bootstrap')
+  if (token === undefined || token === '')
+    throw new ChannelError('unauthenticated', '页面缺少会话凭证', 'bootstrap')
   return token
 }

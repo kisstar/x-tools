@@ -5,7 +5,10 @@
     "codegen": { "cache": false, "outputs": ["contracts/schema/**", "packages/contracts/src/generated.ts"] },
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
     "dev": { "cache": false, "persistent": true },
+    "format": { "dependsOn": ["^format"], "outputs": [] },
+    "format:check": { "dependsOn": ["^format:check"], "outputs": [] },
     "lint": { "dependsOn": ["^lint"], "outputs": [] },
+    "lint:fix": { "dependsOn": ["^lint:fix"], "outputs": [] },
     "test": { "dependsOn": ["^build"], "outputs": ["coverage/**"] },
     "typecheck": { "dependsOn": ["^typecheck"], "outputs": [] }
   }

@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "paths": {
+      "@xtools/*": ["./packages/*/src/index.ts"],
+      "@xtools/module-*": ["./packages/modules/*/src/index.ts"]
+    },
+    "types": ["react", "react-dom"],
+    "noEmit": true
+  },
+  "include": [
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "*.ts",
+    "packages/*/vite.config.ts",
+    "packages/modules/*/vite.config.ts"
+  ]
+}

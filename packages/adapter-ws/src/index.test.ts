@@ -1,5 +1,6 @@
+import type { WebSocketLike } from './index.ts'
 import { describe, expect, it } from 'vitest'
-import { ChannelError, WebSocketChannel, createBrowserWebSocketChannel, readSessionToken, type WebSocketLike } from './index.ts'
+import { ChannelError, createBrowserWebSocketChannel, readSessionToken, WebSocketChannel } from './index.ts'
 
 class FakeWebSocket implements WebSocketLike {
   readonly sent: string[] = []
@@ -28,7 +29,7 @@ class FakeWebSocket implements WebSocketLike {
   }
 }
 
-describe('WebSocketChannel', () => {
+describe('webSocketChannel', () => {
   it('连接打开前发起的调用会等待连接而不是立即失败', async () => {
     const socket = new FakeWebSocket()
     const channel = new WebSocketChannel(socket)
@@ -43,7 +44,14 @@ describe('WebSocketChannel', () => {
   it('只从服务端注入的 meta 读取 token，并作为子协议发送', () => {
     let protocols: readonly string[] = []
     const token = readSessionToken({ querySelector: () => ({ content: 'secret' }) as HTMLMetaElement })
-    createBrowserWebSocketChannel({ url: 'ws://localhost/rpc', token, createSocket(_url, values) { protocols = values; return new FakeWebSocket() } })
+    createBrowserWebSocketChannel({
+      url: 'ws://localhost/rpc',
+      token,
+      createSocket(_url, values) {
+        protocols = values
+        return new FakeWebSocket()
+      },
+    })
     expect(protocols).toEqual(['xtools', 'xtools-token.secret'])
   })
 

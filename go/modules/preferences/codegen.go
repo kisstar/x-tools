@@ -56,12 +56,18 @@ func GenerateContracts() (map[string][]byte, error) {
 		id, direction string
 		value         any
 	}{
-		{string(GetID), "input", GetInput{}}, {string(GetID), "output", GetOutput{}},
-		{string(UpdateID), "input", UpdateInput{}}, {string(UpdateID), "output", UpdateOutput{}},
+		{string(GetID), "input", GetInput{}},
+		{string(GetID), "output", GetOutput{}},
+		{string(UpdateID), "input", UpdateInput{}},
+		{string(UpdateID), "output", UpdateOutput{}},
 	}
 	files := make(map[string][]byte, 5)
 	for _, definition := range definitions {
-		generated, err := json.MarshalIndent(schemaFor(reflect.TypeOf(definition.value), definition.id+" "+definition.direction), "", "  ")
+		generated, err := json.MarshalIndent(
+			schemaFor(reflect.TypeOf(definition.value), definition.id+" "+definition.direction),
+			"",
+			"  ",
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -99,11 +105,15 @@ func WriteContracts(root string) error {
 }
 
 func RuntimeSchema(value any) contracts.JSONSchema { return runtimeSchemaFor(reflect.TypeOf(value)) }
+
 func runtimeSchemaFor(value reflect.Type) contracts.JSONSchema {
 	for value.Kind() == reflect.Pointer {
 		value = value.Elem()
 	}
-	result := contracts.JSONSchema{Type: schemaType(value), AdditionalProperties: contracts.AdditionalProperties{Allowed: false}}
+	result := contracts.JSONSchema{
+		Type:                 schemaType(value),
+		AdditionalProperties: contracts.AdditionalProperties{Allowed: false},
+	}
 	switch value.Kind() {
 	case reflect.Struct:
 		result.Properties = make(map[string]contracts.JSONSchema)
@@ -119,7 +129,7 @@ func runtimeSchemaFor(value reflect.Type) contracts.JSONSchema {
 			result.Properties[name] = runtimeSchemaFor(field.Type)
 			if field.Tag.Get("minLength") != "" {
 				child := result.Properties[name]
-				fmt.Sscan(field.Tag.Get("minLength"), &child.MinLength)
+				_, _ = fmt.Sscan(field.Tag.Get("minLength"), &child.MinLength)
 				result.Properties[name] = child
 			}
 			if options != "omitempty" {
@@ -135,6 +145,7 @@ func runtimeSchemaFor(value reflect.Type) contracts.JSONSchema {
 	}
 	return result
 }
+
 func schemaType(value reflect.Type) string {
 	switch value.Kind() {
 	case reflect.Struct, reflect.Map:
@@ -143,7 +154,16 @@ func schemaType(value reflect.Type) string {
 		return "array"
 	case reflect.Bool:
 		return "boolean"
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Int,
+		reflect.Int8,
+		reflect.Int16,
+		reflect.Int32,
+		reflect.Int64,
+		reflect.Uint,
+		reflect.Uint8,
+		reflect.Uint16,
+		reflect.Uint32,
+		reflect.Uint64:
 		return "integer"
 	case reflect.Float32, reflect.Float64:
 		return "number"
@@ -156,7 +176,12 @@ func schemaFor(value reflect.Type, title string) schema {
 	for value.Kind() == reflect.Pointer {
 		value = value.Elem()
 	}
-	result := schema{Schema: "https://json-schema.org/draft/2020-12/schema", Comment: "Code generated from Go contracts; DO NOT EDIT.", Title: title, AdditionalProperties: false}
+	result := schema{
+		Schema:               "https://json-schema.org/draft/2020-12/schema",
+		Comment:              "Code generated from Go contracts; DO NOT EDIT.",
+		Title:                title,
+		AdditionalProperties: false,
+	}
 	switch value.Kind() {
 	case reflect.Struct:
 		result.Type = "object"
@@ -173,7 +198,7 @@ func schemaFor(value reflect.Type, title string) schema {
 			result.Properties[name] = schemaFor(field.Type, field.Name)
 			if field.Tag.Get("minLength") != "" {
 				child := result.Properties[name]
-				fmt.Sscan(field.Tag.Get("minLength"), &child.MinLength)
+				_, _ = fmt.Sscan(field.Tag.Get("minLength"), &child.MinLength)
 				result.Properties[name] = child
 			}
 			if options != "omitempty" {
@@ -189,7 +214,16 @@ func schemaFor(value reflect.Type, title string) schema {
 		result.Items = &item
 	case reflect.Bool:
 		result.Type = "boolean"
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Int,
+		reflect.Int8,
+		reflect.Int16,
+		reflect.Int32,
+		reflect.Int64,
+		reflect.Uint,
+		reflect.Uint8,
+		reflect.Uint16,
+		reflect.Uint32,
+		reflect.Uint64:
 		result.Type = "integer"
 	case reflect.Float32, reflect.Float64:
 		result.Type = "number"

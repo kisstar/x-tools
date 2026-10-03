@@ -1,12 +1,12 @@
-import { describe, expect, it } from 'vitest'
 import { createModuleId, createSlotId } from '@xtools/ui-contracts'
+import { describe, expect, it } from 'vitest'
 import { SlotRegistry } from './slot-registry.ts'
 
 const root = createSlotId('root')
 const shell = createModuleId('workbench.shell')
 const plugin = createModuleId('feature.files')
 
-describe('SlotRegistry', () => {
+describe('slotRegistry', () => {
   it('只允许声明一个 root', () => {
     const registry = new SlotRegistry()
     registry.declare({ id: root, ownerId: shell, kind: 'single', scope: 'root', major: 1 })

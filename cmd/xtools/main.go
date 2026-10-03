@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
-	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -21,8 +21,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tokenFile := flag.String("token-file", filepath.Join(configDirectory, "xtools", "session-token"), "private session token file")
-	preferencesFile := flag.String("preferences-file", filepath.Join(configDirectory, "xtools", "preferences.json"), "user workbench preferences file")
+	tokenFile := flag.String(
+		"token-file",
+		filepath.Join(configDirectory, "xtools", "session-token"),
+		"private session token file",
+	)
+	preferencesFile := flag.String(
+		"preferences-file",
+		filepath.Join(configDirectory, "xtools", "preferences.json"),
+		"user workbench preferences file",
+	)
 	flag.Parse()
 	token, err := newSessionToken()
 	if err != nil {
@@ -31,10 +39,19 @@ func main() {
 	if err := writeSessionToken(*tokenFile, token); err != nil {
 		log.Fatal(err)
 	}
-	defer os.Remove(*tokenFile)
-	var assets fs.FS = os.DirFS(*assetsDirectory)
+	defer func() { _ = os.Remove(*tokenFile) }()
+	assets := os.DirFS(*assetsDirectory)
 	origin := fmt.Sprintf("http://localhost:%d", *port)
-	host, err := compose(hostConfig{Assets: assets, Token: token, Port: *port, Origins: []string{origin, fmt.Sprintf("http://127.0.0.1:%d", *port)}, PreferencesPath: *preferencesFile, RequiredModules: []string{preferencesModuleID}})
+	host, err := compose(
+		hostConfig{
+			Assets:          assets,
+			Token:           token,
+			Port:            *port,
+			Origins:         []string{origin, fmt.Sprintf("http://127.0.0.1:%d", *port)},
+			PreferencesPath: *preferencesFile,
+			RequiredModules: []string{preferencesModuleID},
+		},
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +64,7 @@ func main() {
 	defer signal.Stop(signals)
 	select {
 	case err := <-serverErrors:
-		if err != nil && err != http.ErrServerClosed {
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal(err)
 		}
 	case <-signals:

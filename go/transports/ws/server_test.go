@@ -30,7 +30,7 @@ func TestAdmissionRejectsInvalidHostOriginAndTokenIndependently(t *testing.T) {
 				config.ExpectedHost = "127.0.0.1:10312"
 			}
 			server := newServerWithConfig(t, config)
-			request, err := http.NewRequest(http.MethodGet, server.URL+"/ws", nil)
+			request, err := http.NewRequestWithContext(t.Context(), http.MethodGet, server.URL+"/ws", nil)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -41,7 +41,7 @@ func TestAdmissionRejectsInvalidHostOriginAndTokenIndependently(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer response.Body.Close()
+			defer func() { _ = response.Body.Close() }()
 			if response.StatusCode != http.StatusForbidden && response.StatusCode != http.StatusUnauthorized {
 				t.Fatalf("status = %d", response.StatusCode)
 			}
@@ -57,14 +57,22 @@ func TestValidBrowserConnectionInvokesFrozenMethodAndIgnoresPayloadPrincipal(t *
 		HTTPHeader:   http.Header{"Origin": []string{"http://localhost:10312"}},
 		Subprotocols: []string{"xtools", "xtools-token." + token},
 	})
+	if response != nil && response.Body != nil {
+		defer func() { _ = response.Body.Close() }()
+	}
 	if err != nil {
 		if response != nil {
 			t.Fatalf("dial: %v (status %d)", err, response.StatusCode)
 		}
 		t.Fatal(err)
 	}
-	defer connection.CloseNow()
-	request := map[string]any{"jsonrpc": "2.0", "id": 1, "method": "test.identity@1", "params": map[string]any{"principal": map[string]string{"kind": "module", "id": "forged"}}}
+	defer func() { _ = connection.CloseNow() }()
+	request := map[string]any{
+		"jsonrpc": "2.0",
+		"id":      1,
+		"method":  "test.identity@1",
+		"params":  map[string]any{"principal": map[string]string{"kind": "module", "id": "forged"}},
+	}
 	if err := wsjsonWrite(ctx, connection, request); err != nil {
 		t.Fatal(err)
 	}
@@ -85,12 +93,26 @@ func TestUnknownMethodReturnsStableError(t *testing.T) {
 	server := newServer(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	connection, _, err := websocket.Dial(ctx, server.URL+"/ws", &websocket.DialOptions{HTTPHeader: http.Header{"Origin": []string{"http://localhost:10312"}}, Subprotocols: []string{"xtools", "xtools-token." + token}})
+	connection, dialResponse, err := websocket.Dial(
+		ctx,
+		server.URL+"/ws",
+		&websocket.DialOptions{
+			HTTPHeader:   http.Header{"Origin": []string{"http://localhost:10312"}},
+			Subprotocols: []string{"xtools", "xtools-token." + token},
+		},
+	)
+	if dialResponse != nil && dialResponse.Body != nil {
+		defer func() { _ = dialResponse.Body.Close() }()
+	}
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer connection.CloseNow()
-	if err := wsjsonWrite(ctx, connection, map[string]any{"jsonrpc": "2.0", "id": 2, "method": "missing.run@1", "params": map[string]any{}}); err != nil {
+	defer func() { _ = connection.CloseNow() }()
+	if err := wsjsonWrite(
+		ctx,
+		connection,
+		map[string]any{"jsonrpc": "2.0", "id": 2, "method": "missing.run@1", "params": map[string]any{}},
+	); err != nil {
 		t.Fatal(err)
 	}
 	var response struct {
@@ -108,11 +130,21 @@ func TestAcceptsTokenProtocolAndNegotiatesXToolsSubprotocol(t *testing.T) {
 	server := newServer(t)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	connection, _, err := websocket.Dial(ctx, server.URL+"/ws", &websocket.DialOptions{HTTPHeader: http.Header{"Origin": []string{"http://localhost:10312"}}, Subprotocols: []string{"xtools", "xtools-token." + token}})
+	connection, response, err := websocket.Dial(
+		ctx,
+		server.URL+"/ws",
+		&websocket.DialOptions{
+			HTTPHeader:   http.Header{"Origin": []string{"http://localhost:10312"}},
+			Subprotocols: []string{"xtools", "xtools-token." + token},
+		},
+	)
+	if response != nil && response.Body != nil {
+		defer func() { _ = response.Body.Close() }()
+	}
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer connection.CloseNow()
+	defer func() { _ = connection.CloseNow() }()
 	if got := connection.Subprotocol(); got != "xtools" {
 		t.Fatalf("subprotocol = %q", got)
 	}
@@ -120,18 +152,42 @@ func TestAcceptsTokenProtocolAndNegotiatesXToolsSubprotocol(t *testing.T) {
 
 func newServer(t *testing.T) *httptest.Server {
 	t.Helper()
-	return newServerWithConfig(t, wstransport.Config{Port: 10312, Token: token, Origins: []string{"http://localhost:10312"}, ExpectedHost: "127.0.0.1:10312"})
+	return newServerWithConfig(
+		t,
+		wstransport.Config{
+			Port:         10312,
+			Token:        token,
+			Origins:      []string{"http://localhost:10312"},
+			ExpectedHost: "127.0.0.1:10312",
+		},
+	)
 }
 
 func newServerWithConfig(t *testing.T, config wstransport.Config) *httptest.Server {
 	t.Helper()
 	registryValue := registry.New()
 	schema := contracts.JSONSchema{Type: "object", AdditionalProperties: contracts.AdditionalProperties{Allowed: true}}
-	contract := contracts.CapabilityContract{ID: "test.identity@1", Kind: contracts.Query, Idempotent: true, SupportsCancellation: true, DefaultDeadline: time.Second, MaxInputBytes: 1024, MaxOutputBytes: 1024, MaxConcurrent: 4, InputSchema: schema, OutputSchema: schema, Permissions: []contracts.Permission{"test.identity"}, Exposure: []contracts.Exposure{contracts.ExposureWebSocket}, Availability: contracts.Availability{Available: true}}
-	err := registryValue.Register(registry.Capability{Contract: contract, Handler: func(_ context.Context, _ []byte) ([]byte, *contracts.Error) {
-		t.Fatal("transport must pass principal through Invoker context-aware facade")
-		return nil, nil
-	}})
+	contract := contracts.CapabilityContract{
+		ID:                   "test.identity@1",
+		Kind:                 contracts.Query,
+		Idempotent:           true,
+		SupportsCancellation: true,
+		DefaultDeadline:      time.Second,
+		MaxInputBytes:        1024,
+		MaxOutputBytes:       1024,
+		MaxConcurrent:        4,
+		InputSchema:          schema,
+		OutputSchema:         schema,
+		Permissions:          []contracts.Permission{"test.identity"},
+		Exposure:             []contracts.Exposure{contracts.ExposureWebSocket},
+		Availability:         contracts.Availability{Available: true},
+	}
+	err := registryValue.Register(
+		registry.Capability{Contract: contract, Handler: func(_ context.Context, _ []byte) ([]byte, *contracts.Error) {
+			t.Fatal("transport must pass principal through Invoker context-aware facade")
+			return nil, nil
+		}},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +201,12 @@ func newServerWithConfig(t *testing.T, config wstransport.Config) *httptest.Serv
 
 type capturingInvoker struct{ delegate *invoke.Invoker }
 
-func (invoker *capturingInvoker) Invoke(_ context.Context, principal contracts.Principal, id contracts.CapabilityID, _ []byte) ([]byte, *contracts.Error) {
+func (invoker *capturingInvoker) Invoke(
+	_ context.Context,
+	principal contracts.Principal,
+	id contracts.CapabilityID,
+	_ []byte,
+) ([]byte, *contracts.Error) {
 	if id != "test.identity@1" {
 		return invoker.delegate.Invoke(context.Background(), principal, id, []byte(`{}`))
 	}
@@ -163,6 +224,7 @@ func wsjsonWrite(ctx context.Context, connection *websocket.Conn, value any) err
 	}
 	return connection.Write(ctx, websocket.MessageText, data)
 }
+
 func wsjsonRead(ctx context.Context, connection *websocket.Conn, value any) error {
 	_, data, err := connection.Read(ctx)
 	if err != nil {

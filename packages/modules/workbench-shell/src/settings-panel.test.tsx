@@ -1,6 +1,6 @@
+import type { WorkbenchPreferences } from '@xtools/ui-contracts'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { expect, it, vi } from 'vitest'
-import type { WorkbenchPreferences } from '@xtools/ui-contracts'
 import { SettingsPanel } from './settings-panel.tsx'
 
 it('设置区分全局与工作区偏好并可清除工作区覆盖', async () => {

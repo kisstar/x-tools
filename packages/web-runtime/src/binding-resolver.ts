@@ -1,8 +1,12 @@
 import type { RegionId, RendererBindingLayers, RendererDescriptor, UiDiagnostic } from '@xtools/ui-contracts'
 
-export interface ResolvedRendererBinding { readonly renderer?: RendererDescriptor; readonly diagnostic?: UiDiagnostic }
+export interface ResolvedRendererBinding { readonly renderer?: RendererDescriptor, readonly diagnostic?: UiDiagnostic }
 
-export function resolveRendererBinding(region: RegionId, layers: RendererBindingLayers, renderers: readonly RendererDescriptor[]): ResolvedRendererBinding {
+export function resolveRendererBinding(
+  region: RegionId,
+  layers: RendererBindingLayers,
+  renderers: readonly RendererDescriptor[],
+): ResolvedRendererBinding {
   const id = layers.workspace ?? layers.global ?? layers.container ?? layers.shell
   const renderer = renderers.find(candidate => candidate.id === id)
   if (renderer === undefined || renderer.region !== region || renderer.major !== 1) {

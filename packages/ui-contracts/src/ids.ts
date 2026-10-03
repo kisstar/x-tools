@@ -9,7 +9,8 @@ export type ViewId = Brand<string, 'ViewId'>
 const ID_PATTERN = /^[a-z][a-z0-9]*(?:[.-][a-z][a-z0-9-]*)*$/
 
 function createId<T extends string>(value: string): T {
-  if (!ID_PATTERN.test(value)) throw new Error(`invalid id: ${value}`)
+  if (!ID_PATTERN.test(value))
+    throw new Error(`invalid id: ${value}`)
   return value as T
 }
 

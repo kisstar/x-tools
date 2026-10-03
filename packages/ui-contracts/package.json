@@ -1,9 +1,9 @@
 {
   "name": "@xtools/ui-contracts",
-  "private": true,
   "type": "module",
+  "private": true,
   "exports": { ".": "./src/index.ts" },
-  "scripts": { "build": "tsc -p tsconfig.json", "lint": "eslint --no-error-on-unmatched-pattern src", "test": "vitest run", "typecheck": "tsc -p tsconfig.json" }
-  ,"devDependencies": { "@types/react": "catalog:", "vitest": "catalog:" },
-  "peerDependencies": { "react": "catalog:" }
+  "scripts": { "build": "tsc -p tsconfig.json", "lint": "eslint --no-error-on-unmatched-pattern src", "test": "vitest run", "typecheck": "tsc -p tsconfig.json" },
+  "peerDependencies": { "react": "catalog:" },
+  "devDependencies": { "@types/react": "catalog:", "vitest": "catalog:" }
 }

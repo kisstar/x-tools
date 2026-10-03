@@ -72,7 +72,8 @@ func (server *server) allowedHost(value string) bool {
 	if err != nil {
 		return server.config.Port == 0 && value == "example.com"
 	}
-	return (host == "127.0.0.1" || host == "localhost" || host == "::1") && (server.config.Port == 0 || port == strconv.Itoa(server.config.Port))
+	return (host == "127.0.0.1" || host == "localhost" || host == "::1") &&
+		(server.config.Port == 0 || port == strconv.Itoa(server.config.Port))
 }
 
 func (server *server) index(writer http.ResponseWriter) {
@@ -90,7 +91,10 @@ func (server *server) index(writer http.ResponseWriter) {
 }
 
 func (server *server) securityHeaders(writer http.ResponseWriter) {
-	writer.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws:; object-src 'none'; base-uri 'none'")
+	writer.Header().Set(
+		"Content-Security-Policy",
+		"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' ws:; object-src 'none'; base-uri 'none'",
+	)
 	writer.Header().Set("Referrer-Policy", "no-referrer")
 	writer.Header().Set("X-Content-Type-Options", "nosniff")
 }

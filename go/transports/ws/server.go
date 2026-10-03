@@ -67,11 +67,15 @@ func (server *server) handle(writer http.ResponseWriter, requestValue *http.Requ
 		http.Error(writer, http.StatusText(status), status)
 		return
 	}
-	connection, err := websocket.Accept(writer, requestValue, &websocket.AcceptOptions{OriginPatterns: server.originPatterns(), Subprotocols: []string{"xtools"}})
+	connection, err := websocket.Accept(
+		writer,
+		requestValue,
+		&websocket.AcceptOptions{OriginPatterns: server.originPatterns(), Subprotocols: []string{"xtools"}},
+	)
 	if err != nil {
 		return
 	}
-	defer connection.CloseNow()
+	defer func() { _ = connection.CloseNow() }()
 	if token == "" {
 		return
 	}
@@ -95,11 +99,19 @@ func (server *server) handle(writer http.ResponseWriter, requestValue *http.Requ
 func (server *server) invoke(ctx context.Context, principal contracts.Principal, data []byte) response {
 	var value request
 	if err := json.Unmarshal(data, &value); err != nil || value.JSONRPC != "2.0" || len(value.ID) == 0 {
-		return response{JSONRPC: "2.0", ID: value.ID, Error: contracts.NewError(contracts.CodeInvalidArgument, "invalid JSON-RPC request", sessionID(), nil)}
+		return response{
+			JSONRPC: "2.0",
+			ID:      value.ID,
+			Error:   contracts.NewError(contracts.CodeInvalidArgument, "invalid JSON-RPC request", sessionID(), nil),
+		}
 	}
 	id, exposed := server.methods[value.Method]
 	if !exposed {
-		return response{JSONRPC: "2.0", ID: value.ID, Error: contracts.NewError(contracts.CodeNotFound, "capability not found", sessionID(), nil)}
+		return response{
+			JSONRPC: "2.0",
+			ID:      value.ID,
+			Error:   contracts.NewError(contracts.CodeNotFound, "capability not found", sessionID(), nil),
+		}
 	}
 	params := value.Params
 	if len(params) == 0 {
@@ -131,6 +143,7 @@ func (server *server) admit(request *http.Request) (string, int) {
 func allowedHost(host string) bool {
 	return host == "127.0.0.1" || host == "localhost" || host == "::1"
 }
+
 func (server *server) allowedOrigin(origin string) bool {
 	for _, allowed := range server.config.Origins {
 		if origin == allowed {
@@ -139,6 +152,7 @@ func (server *server) allowedOrigin(origin string) bool {
 	}
 	return false
 }
+
 func (server *server) originPatterns() []string {
 	values := make([]string, 0, len(server.config.Origins))
 	for _, origin := range server.config.Origins {
@@ -146,6 +160,7 @@ func (server *server) originPatterns() []string {
 	}
 	return values
 }
+
 func websocketToken(protocols []string) string {
 	for _, protocol := range protocols {
 		protocol = strings.TrimSpace(protocol)
@@ -155,6 +170,7 @@ func websocketToken(protocols []string) string {
 	}
 	return ""
 }
+
 func sessionID() string {
 	var value [8]byte
 	if _, err := rand.Read(value[:]); err != nil {

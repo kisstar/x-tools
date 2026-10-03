@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "streetsidesoftware.code-spell-checker",
+    "dbaeumer.vscode-eslint",
+    "stylelint.vscode-stylelint",
+    "bradlc.vscode-tailwindcss",
+    "golang.go",
+    "redhat.vscode-yaml",
+    "mkhl.shfmt"
+  ]
+}

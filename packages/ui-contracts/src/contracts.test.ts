@@ -1,11 +1,17 @@
+import type { NavigationContribution, UiDiagnostic } from './index.ts'
 import { describe, expect, it } from 'vitest'
 import {
-  buildNavigationTree, createContainerId, createModuleId, createRendererId, createSlotId, createViewId,
-  type NavigationContribution, type UiDiagnostic,
+  buildNavigationTree,
+  createContainerId,
+  createModuleId,
+  createRendererId,
+  createSlotId,
+  createViewId,
+
 } from './index.ts'
 
 describe('品牌 ID', () => {
-  it.each([createModuleId, createRendererId, createSlotId, createContainerId, createViewId])('拒绝不规范 ID', create => {
+  it.each([createModuleId, createRendererId, createSlotId, createContainerId, createViewId])('拒绝不规范 ID', (create) => {
     expect(() => create('Bad ID')).toThrow(/invalid/)
   })
 
@@ -16,8 +22,15 @@ describe('品牌 ID', () => {
 
 describe('导航树', () => {
   const item = (id: string, parentId?: string): NavigationContribution => ({
-    kind: 'item', id, containerId: 'files', region: 'secondary-navigation', title: id, order: 0,
-    ...(parentId === undefined ? {} : { parentId }), route: `/files/${id}`, availability: { available: true },
+    kind: 'item',
+    id,
+    containerId: 'files',
+    region: 'secondary-navigation',
+    title: id,
+    order: 0,
+    ...(parentId === undefined ? {} : { parentId }),
+    route: `/files/${id}`,
+    availability: { available: true },
   })
 
   it('拒绝父节点环', () => {
@@ -30,7 +43,7 @@ describe('导航树', () => {
 })
 
 describe('诊断码', () => {
-  it.each<UiDiagnostic['code']>(['renderer_unavailable', 'container_unavailable', 'duplicate_id'])('保留结构化诊断 %s', code => {
+  it.each<UiDiagnostic['code']>(['renderer_unavailable', 'container_unavailable', 'duplicate_id'])('保留结构化诊断 %s', (code) => {
     const diagnostic: UiDiagnostic = { code, message: code, sourceId: 'test' }
     expect(diagnostic.code).toBe(code)
   })

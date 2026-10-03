@@ -89,8 +89,10 @@ func (contract CapabilityContract) Validate() error {
 	return nil
 }
 
-type Permission string
-type Exposure string
+type (
+	Permission string
+	Exposure   string
+)
 
 const (
 	ExposureWebSocket Exposure = "websocket"
@@ -138,6 +140,7 @@ func (schema JSONSchema) ValidateJSON(payload []byte) []string {
 	schema.validate(value, "$", &violations)
 	return violations
 }
+
 func (schema JSONSchema) Validator(invalidCode ErrorCode, message string) func([]byte) *Error {
 	return func(payload []byte) *Error {
 		violations := schema.ValidateJSON(payload)

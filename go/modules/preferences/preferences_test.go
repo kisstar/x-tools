@@ -47,7 +47,8 @@ func TestPreferencesPersistAcrossModuleRestartWithPrivateAtomicFile(t *testing.T
 
 	second := testInvokerForModule(t, preferences.New(filename))
 	got := call[preferences.GetOutput](t, second, principal, preferences.GetID, preferences.GetInput{})
-	if got.Preferences.Revision != "1" || *got.Preferences.Global.Containers["settings"].Regions["detail"].RendererID != renderer {
+	if got.Preferences.Revision != "1" ||
+		*got.Preferences.Global.Containers["settings"].Regions["detail"].RendererID != renderer {
 		t.Fatalf("restarted preferences = %#v", got.Preferences)
 	}
 }
@@ -64,15 +65,26 @@ func TestGetAndUpdatePreferencesUseRevisionCASAndPreserveUnknownRenderer(t *test
 	updated := call[preferences.UpdateOutput](t, invoker, principal, preferences.UpdateID, preferences.UpdateInput{
 		ExpectedRevision: initial.Preferences.Revision,
 		Preferences: preferences.PreferenceState{
-			Global:     preferences.PreferenceLayer{Containers: map[string]preferences.ContainerPreference{"home": {Regions: map[string]preferences.RegionPreference{"content": {RendererID: &unknown}}}}},
-			Workspaces: map[string]preferences.PreferenceLayer{"workspace-a": {Containers: map[string]preferences.ContainerPreference{"home": {Navigation: preferences.NavigationPreference{Hidden: []string{"home.legacy"}}}}}},
+			Global: preferences.PreferenceLayer{
+				Containers: map[string]preferences.ContainerPreference{
+					"home": {Regions: map[string]preferences.RegionPreference{"content": {RendererID: &unknown}}},
+				},
+			},
+			Workspaces: map[string]preferences.PreferenceLayer{
+				"workspace-a": {
+					Containers: map[string]preferences.ContainerPreference{
+						"home": {Navigation: preferences.NavigationPreference{Hidden: []string{"home.legacy"}}},
+					},
+				},
+			},
 		},
 	})
 	if updated.Preferences.Revision != "1" {
 		t.Fatalf("updated revision = %q", updated.Preferences.Revision)
 	}
 	got := call[preferences.GetOutput](t, invoker, principal, preferences.GetID, preferences.GetInput{})
-	if value := got.Preferences.Global.Containers["home"].Regions["content"].RendererID; value == nil || *value != unknown {
+	if value := got.Preferences.Global.Containers["home"].Regions["content"].RendererID; value == nil ||
+		*value != unknown {
 		t.Fatalf("unknown renderer not preserved: %#v", value)
 	}
 	if got.Preferences.Workspaces["workspace-a"].Containers["home"].Navigation.Hidden[0] != "home.legacy" {
@@ -83,8 +95,17 @@ func TestGetAndUpdatePreferencesUseRevisionCASAndPreserveUnknownRenderer(t *test
 func TestUpdateRejectsStaleRevisionAndReturnsCurrentRevision(t *testing.T) {
 	invoker := testInvoker(t)
 	principal := contracts.Principal{Kind: contracts.PrincipalWebSession}
-	empty := preferences.PreferenceState{Global: preferences.PreferenceLayer{Containers: map[string]preferences.ContainerPreference{}}, Workspaces: map[string]preferences.PreferenceLayer{}}
-	call[preferences.UpdateOutput](t, invoker, principal, preferences.UpdateID, preferences.UpdateInput{ExpectedRevision: "0", Preferences: empty})
+	empty := preferences.PreferenceState{
+		Global:     preferences.PreferenceLayer{Containers: map[string]preferences.ContainerPreference{}},
+		Workspaces: map[string]preferences.PreferenceLayer{},
+	}
+	call[preferences.UpdateOutput](
+		t,
+		invoker,
+		principal,
+		preferences.UpdateID,
+		preferences.UpdateInput{ExpectedRevision: "0", Preferences: empty},
+	)
 	input, _ := json.Marshal(preferences.UpdateInput{ExpectedRevision: "0", Preferences: empty})
 	_, err := invoker.Invoke(context.Background(), principal, preferences.UpdateID, input)
 	if err == nil || err.Code != contracts.CodeConflict {
@@ -116,6 +137,7 @@ func testInvoker(t *testing.T) *invoke.Invoker {
 	t.Helper()
 	return testInvokerForModule(t, preferences.New())
 }
+
 func testInvokerForModule(t *testing.T, module *preferences.Module) *invoke.Invoker {
 	t.Helper()
 	r := registry.New()
@@ -124,7 +146,14 @@ func testInvokerForModule(t *testing.T, module *preferences.Module) *invoke.Invo
 	}
 	return invoke.New(r.Freeze())
 }
-func call[T any](t *testing.T, invoker *invoke.Invoker, principal contracts.Principal, id contracts.CapabilityID, input any) T {
+
+func call[T any](
+	t *testing.T,
+	invoker *invoke.Invoker,
+	principal contracts.Principal,
+	id contracts.CapabilityID,
+	input any,
+) T {
 	t.Helper()
 	payload, err := json.Marshal(input)
 	if err != nil {

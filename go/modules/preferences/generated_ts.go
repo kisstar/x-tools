@@ -12,22 +12,39 @@ import (
 func generateTypeScript(definitions []struct {
 	id, direction string
 	value         any
-}) []byte {
+},
+) []byte {
 	var output bytes.Buffer
 	output.WriteString("// Code generated from Go contracts; DO NOT EDIT.\n\n")
-	output.WriteString("export const WORKBENCH_PREFERENCES_GET_ID = 'workbench.preferences.get@1' as const\nexport const WORKBENCH_PREFERENCES_UPDATE_ID = 'workbench.preferences.update@1' as const\n\n")
+	output.WriteString(
+		"export const WORKBENCH_PREFERENCES_GET_ID = 'workbench.preferences.get@1' as const\nexport const WORKBENCH_PREFERENCES_UPDATE_ID = 'workbench.preferences.update@1' as const\n\n",
+	)
 	for _, value := range collectStructTypes(definitions) {
 		writeTypeScriptType(&output, value)
 	}
 	for _, definition := range definitions {
-		fmt.Fprintf(&output, "export type %s = %s\n", exportName(definition.id, definition.direction), reflect.TypeOf(definition.value).Name())
+		fmt.Fprintf(
+			&output,
+			"export type %s = %s\n",
+			exportName(definition.id, definition.direction),
+			reflect.TypeOf(definition.value).Name(),
+		)
 	}
 	output.WriteByte('\n')
 	output.WriteString(validatorRuntime)
 	for _, definition := range definitions {
 		name := exportName(definition.id, definition.direction)
-		schemaJSON, _ := json.Marshal(schemaFor(reflect.TypeOf(definition.value), definition.id+" "+definition.direction))
-		fmt.Fprintf(&output, "const %sSchema: Schema = %s as Schema\nexport function validate%s(value: unknown): ValidationResult { return result(validateSchema(%sSchema, value)) }\n\n", lowerFirst(name), schemaJSON, name, lowerFirst(name))
+		schemaJSON, _ := json.Marshal(
+			schemaFor(reflect.TypeOf(definition.value), definition.id+" "+definition.direction),
+		)
+		fmt.Fprintf(
+			&output,
+			"const %sSchema: Schema = %s as Schema\nexport function validate%s(value: unknown): ValidationResult { return result(validateSchema(%sSchema, value)) }\n\n",
+			lowerFirst(name),
+			schemaJSON,
+			name,
+			lowerFirst(name),
+		)
 	}
 	return bytes.TrimRight(output.Bytes(), "\n")
 }
@@ -60,7 +77,8 @@ const result = (errors: string[]): ValidationResult => ({ valid: errors.length =
 func collectStructTypes(definitions []struct {
 	id, direction string
 	value         any
-}) []reflect.Type {
+},
+) []reflect.Type {
 	values := map[string]reflect.Type{}
 	var visit func(reflect.Type)
 	visit = func(value reflect.Type) {
@@ -117,6 +135,7 @@ func writeTypeScriptType(output *bytes.Buffer, value reflect.Type) {
 	}
 	output.WriteString(" }\n")
 }
+
 func typeScriptType(value reflect.Type) string {
 	for value.Kind() == reflect.Pointer {
 		value = value.Elem()
@@ -130,12 +149,24 @@ func typeScriptType(value reflect.Type) string {
 		return "readonly " + typeScriptType(value.Elem()) + "[]"
 	case reflect.Bool:
 		return "boolean"
-	case reflect.Float32, reflect.Float64, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Float32,
+		reflect.Float64,
+		reflect.Int,
+		reflect.Int8,
+		reflect.Int16,
+		reflect.Int32,
+		reflect.Int64,
+		reflect.Uint,
+		reflect.Uint8,
+		reflect.Uint16,
+		reflect.Uint32,
+		reflect.Uint64:
 		return "number"
 	default:
 		return "string"
 	}
 }
+
 func exportName(id, direction string) string {
 	base := strings.TrimSuffix(id, "@1")
 	parts := strings.Split(base+"."+direction, ".")

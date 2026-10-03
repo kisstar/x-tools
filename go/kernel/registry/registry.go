@@ -10,10 +10,12 @@ import (
 	"github.com/kisstar/x-tools/go/contracts"
 )
 
-type Validator func([]byte) *contracts.Error
-type Handler func(context.Context, []byte) ([]byte, *contracts.Error)
-type Authorizer func(context.Context, contracts.Principal, json.RawMessage) *contracts.Error
-type AvailabilityCheck func(context.Context) contracts.Availability
+type (
+	Validator         func([]byte) *contracts.Error
+	Handler           func(context.Context, []byte) ([]byte, *contracts.Error)
+	Authorizer        func(context.Context, contracts.Principal, json.RawMessage) *contracts.Error
+	AvailabilityCheck func(context.Context) contracts.Availability
+)
 
 type Capability struct {
 	Contract       contracts.CapabilityContract
@@ -70,6 +72,7 @@ func (snapshot Snapshot) Lookup(id contracts.CapabilityID) (Capability, bool) {
 	capability, ok := snapshot.capabilities[id]
 	return capability, ok
 }
+
 func (snapshot Snapshot) IDs() []contracts.CapabilityID {
 	ids := make([]contracts.CapabilityID, 0, len(snapshot.capabilities))
 	for id := range snapshot.capabilities {

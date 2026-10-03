@@ -1,6 +1,7 @@
-import { expect, it, vi } from 'vitest'
+import type { RegionId, RendererDescriptor, RenderPlan } from '@xtools/ui-contracts'
 import { render, screen } from '@testing-library/react'
-import { createRendererId, type RegionId, type RendererDescriptor, type RenderPlan } from '@xtools/ui-contracts'
+import { createRendererId } from '@xtools/ui-contracts'
+import { expect, it, vi } from 'vitest'
 import { AppShell } from './app-shell.tsx'
 
 it('单个 renderer 异常只降级对应区域', () => {

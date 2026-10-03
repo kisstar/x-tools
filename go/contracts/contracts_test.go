@@ -46,14 +46,33 @@ func TestCapabilityContractRequiresBoundedInvocationMetadata(t *testing.T) {
 
 func TestJSONSchemaValidatesNestedObjectsArraysAndUnknownFields(t *testing.T) {
 	schema := contracts.JSONSchema{
-		Type: "object", Required: []string{"preferences"}, AdditionalProperties: contracts.AdditionalProperties{Allowed: false},
+		Type:                 "object",
+		Required:             []string{"preferences"},
+		AdditionalProperties: contracts.AdditionalProperties{Allowed: false},
 		Properties: map[string]contracts.JSONSchema{
-			"preferences": {Type: "object", Required: []string{"items"}, AdditionalProperties: contracts.AdditionalProperties{Allowed: false}, Properties: map[string]contracts.JSONSchema{
-				"items": {Type: "array", Items: &contracts.JSONSchema{Type: "object", Required: []string{"rendererId"}, AdditionalProperties: contracts.AdditionalProperties{Allowed: false}, Properties: map[string]contracts.JSONSchema{"rendererId": {Type: "string"}}}},
-			}},
+			"preferences": {
+				Type:                 "object",
+				Required:             []string{"items"},
+				AdditionalProperties: contracts.AdditionalProperties{Allowed: false},
+				Properties: map[string]contracts.JSONSchema{
+					"items": {
+						Type: "array",
+						Items: &contracts.JSONSchema{
+							Type:                 "object",
+							Required:             []string{"rendererId"},
+							AdditionalProperties: contracts.AdditionalProperties{Allowed: false},
+							Properties:           map[string]contracts.JSONSchema{"rendererId": {Type: "string"}},
+						},
+					},
+				},
+			},
 		},
 	}
-	if violations := schema.ValidateJSON([]byte(`{"preferences":{"items":[{"rendererId":42,"extra":true}]}}`)); len(violations) != 2 {
+	if violations := schema.ValidateJSON(
+		[]byte(`{"preferences":{"items":[{"rendererId":42,"extra":true}]}}`),
+	); len(
+		violations,
+	) != 2 {
 		t.Fatalf("violations = %v", violations)
 	}
 }
@@ -63,7 +82,12 @@ func objectSchema() contracts.JSONSchema {
 }
 
 func TestStableErrorCarriesCodeTraceAndSafeDetails(t *testing.T) {
-	err := contracts.NewError(contracts.CodeConflict, "revision conflict", "trace-1", map[string]any{"currentRevision": "2"})
+	err := contracts.NewError(
+		contracts.CodeConflict,
+		"revision conflict",
+		"trace-1",
+		map[string]any{"currentRevision": "2"},
+	)
 	if err.Code != contracts.CodeConflict || err.TraceID != "trace-1" {
 		t.Fatalf("unexpected error: %#v", err)
 	}

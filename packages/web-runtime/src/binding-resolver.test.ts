@@ -1,9 +1,10 @@
+import type { RendererBindingLayers, RendererDescriptor, RendererId } from '@xtools/ui-contracts'
+import { createRendererId } from '@xtools/ui-contracts'
 import { describe, expect, it } from 'vitest'
-import { createRendererId, type RendererBindingLayers, type RendererDescriptor, type RendererId } from '@xtools/ui-contracts'
 import { resolveRendererBinding } from './binding-resolver.ts'
 
 const component = () => null
-const descriptor = (id: string, region: RendererDescriptor['region'] = 'secondary-navigation', major: 1 = 1): RendererDescriptor => ({ region, id: createRendererId(id), major, component } as RendererDescriptor)
+const descriptor = (id: string, region: RendererDescriptor['region'] = 'secondary-navigation', major: 1 = 1): RendererDescriptor => ({ region, id: createRendererId(id), major, component })
 const ids = { shell: createRendererId('shell.default'), container: createRendererId('container.default'), global: createRendererId('user.global'), workspace: createRendererId('workspace.override') }
 
 describe('resolveRendererBinding', () => {

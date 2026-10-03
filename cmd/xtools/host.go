@@ -44,6 +44,7 @@ type preferencesLifecycle struct {
 func (module preferencesLifecycle) Manifest() lifecycle.Manifest {
 	return lifecycle.Manifest{ID: preferencesModuleID}
 }
+
 func (module preferencesLifecycle) Activate(lifecycle.ActivationContext) error {
 	return module.module.Register(module.registry)
 }
@@ -51,14 +52,33 @@ func (preferencesLifecycle) Deactivate(context.Context) error { return nil }
 
 func compose(config hostConfig) (*composedHost, error) {
 	capabilities := registry.New()
-	manager := lifecycle.New([]lifecycle.Module{preferencesLifecycle{module: preferences.New(config.PreferencesPath), registry: capabilities}})
-	if err := manager.Activate(context.Background(), config.RequiredModules, lifecycle.ActivationContext{}); err != nil {
+	manager := lifecycle.New(
+		[]lifecycle.Module{
+			preferencesLifecycle{module: preferences.New(config.PreferencesPath), registry: capabilities},
+		},
+	)
+	if err := manager.Activate(
+		context.Background(),
+		config.RequiredModules,
+		lifecycle.ActivationContext{},
+	); err != nil {
 		return nil, fmt.Errorf("activate host: %w", err)
 	}
 	snapshot := capabilities.Freeze()
 	invoker := invoke.New(snapshot)
-	staticHandler := httptransport.New(httptransport.Config{Assets: config.Assets, Token: config.Token, Port: config.Port, Ready: func() bool { return manager.State() == lifecycle.Serving }})
-	wsHandler := wstransport.New(wstransport.Config{Port: config.Port, Token: config.Token, Origins: config.Origins}, snapshot, invoker)
+	staticHandler := httptransport.New(
+		httptransport.Config{
+			Assets: config.Assets,
+			Token:  config.Token,
+			Port:   config.Port,
+			Ready:  func() bool { return manager.State() == lifecycle.Serving },
+		},
+	)
+	wsHandler := wstransport.New(
+		wstransport.Config{Port: config.Port, Token: config.Token, Origins: config.Origins},
+		snapshot,
+		invoker,
+	)
 	mux := http.NewServeMux()
 	mux.Handle("/ws", wsHandler)
 	mux.Handle("/", staticHandler)
@@ -87,13 +107,13 @@ func writeSessionToken(filename, token string) error {
 		return err
 	}
 	temporaryName := temporary.Name()
-	defer os.Remove(temporaryName)
+	defer func() { _ = os.Remove(temporaryName) }()
 	if err := temporary.Chmod(0o600); err != nil {
-		temporary.Close()
+		_ = temporary.Close()
 		return err
 	}
 	if _, err := temporary.WriteString(token); err != nil {
-		temporary.Close()
+		_ = temporary.Close()
 		return err
 	}
 	if err := temporary.Close(); err != nil {

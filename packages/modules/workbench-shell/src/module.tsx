@@ -1,12 +1,13 @@
-import { createModuleId, createRendererId, createSlotId, type RendererDescriptor } from '@xtools/ui-contracts'
+import type { RendererDescriptor } from '@xtools/ui-contracts'
 import type { UiModule } from '@xtools/web-runtime'
+import { createModuleId, createRendererId, createSlotId } from '@xtools/ui-contracts'
 import { AppShell } from './app-shell.tsx'
+import { CommandPaletteOverlay } from './command-palette.tsx'
 import { DefaultContent } from './renderers/content.tsx'
 import { DefaultDetail } from './renderers/detail.tsx'
 import { DefaultPrimaryNavigation } from './renderers/primary-navigation.tsx'
 import { DefaultSecondaryNavigation } from './renderers/secondary-navigation.tsx'
 import { DefaultTopNavigation } from './renderers/top-navigation.tsx'
-import { CommandPaletteOverlay } from './command-palette.tsx'
 
 const id = createModuleId('workbench.shell')
 const root = createSlotId('root')

@@ -1,7 +1,7 @@
 import type { ContainerId, ViewId } from './ids.ts'
 import type { NavigationRegionId } from './renderers.ts'
 
-export interface Availability { readonly available: boolean; readonly reason?: string }
+export interface Availability { readonly available: boolean, readonly reason?: string }
 
 interface NavigationBase {
   readonly id: string
@@ -29,20 +29,25 @@ export interface NavigationSnapshot { readonly roots: readonly NavigationNode[] 
 export function buildNavigationTree(entries: readonly NavigationContribution[]): NavigationSnapshot {
   const byId = new Map<string, NavigationNode>()
   for (const entry of entries) {
-    if (byId.has(entry.id)) throw new Error(`duplicate navigation id: ${entry.id}`)
+    if (byId.has(entry.id))
+      throw new Error(`duplicate navigation id: ${entry.id}`)
     byId.set(entry.id, { ...entry, children: [] })
   }
   const visit = (id: string, open = new Set<string>()): void => {
-    if (open.has(id)) throw new Error(`navigation cycle: ${[...open, id].join(' -> ')}`)
+    if (open.has(id))
+      throw new Error(`navigation cycle: ${[...open, id].join(' -> ')}`)
     const parent = byId.get(id)?.parentId
-    if (parent === undefined) return
-    if (!byId.has(parent)) throw new Error(`missing navigation parent: ${parent}`)
+    if (parent === undefined)
+      return
+    if (!byId.has(parent))
+      throw new Error(`missing navigation parent: ${parent}`)
     visit(parent, new Set([...open, id]))
   }
   for (const id of byId.keys()) visit(id)
   const roots: NavigationNode[] = []
   for (const node of byId.values()) {
-    if (node.parentId === undefined) roots.push(node)
+    if (node.parentId === undefined)
+      roots.push(node)
     else (byId.get(node.parentId)!.children as NavigationNode[]).push(node)
   }
   const sort = (nodes: NavigationNode[]): void => {
