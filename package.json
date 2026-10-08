@@ -9,13 +9,15 @@
     "build": "pnpm --filter @x-tools/app-main build",
     "build:electron": "pnpm --filter @x-tools/electron build",
     "typecheck": "tsc --noEmit -p renderer/apps/main/tsconfig.json && pnpm --filter @x-tools/electron typecheck && pnpm --filter @x-tools/protocol typecheck",
-    "preview": "pnpm --filter @x-tools/app-main preview"
+    "preview": "pnpm --filter @x-tools/app-main preview",
+    "test": "vitest run"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
