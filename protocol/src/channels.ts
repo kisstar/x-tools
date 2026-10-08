@@ -2,7 +2,7 @@
  * Communication channel identifiers shared between renderer and host process.
  *
  * Renderer code MUST import these constants instead of hard-coding strings,
- * so the Electron / Tauri adapters stay in sync.
+ * so the Electron adapter stays in sync.
  */
 
 export const Channels = {

@@ -6,8 +6,6 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "pnpm --filter @x-tools/app-main dev",
     "dev:electron": "pnpm --filter @x-tools/electron dev",
-    "dev:tauri": "tauri dev",
-    "tauri:build": "tauri build",
     "build": "pnpm --filter @x-tools/app-main build",
     "build:electron": "pnpm --filter @x-tools/electron build",
     "typecheck": "tsc --noEmit -p renderer/apps/main/tsconfig.json && pnpm --filter @x-tools/electron typecheck && pnpm --filter @x-tools/protocol typecheck",
@@ -17,7 +15,6 @@
     "node": ">=20.0.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "catalog:",
     "typescript": "catalog:"
   },
   "pnpm": {

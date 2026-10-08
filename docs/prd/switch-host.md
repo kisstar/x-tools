@@ -32,7 +32,7 @@ Switch-Host 是 xTools 的 hosts 文件管理模块，允许开发者创建、�
 | 缩短 host 切换时间 | 从约 60 秒（手动编辑）到 <2 秒（一键切换） |
 | 消除配置错误 | 零格式错误的条目写入 hosts 文件 |
 | 支持团队协作 | 通过可分享的 JSON 进行 host 分组的导入/导出 |
-| 跨平台一致性 | 在 macOS、Windows、Linux (Tauri/Electron/Web) 上体验一致 |
+| 跨平台一致性 | 在 macOS、Windows、Linux (Electron/Web) 上体验一致 |
 
 ### 1.4 非目标 (v1)
 
@@ -497,7 +497,6 @@ interface ElevatedFileSystemPort {
 
 | 平台 | 机制 |
 |------|------|
-| Tauri 2 | `tauri-plugin-shell` 配合 `pkexec` / `osascript` / `runas` |
 | Electron | `sudo-prompt` 包或原生对话框 + `child_process.execFile` |
 | Web (本地服务器) | 服务端进程预授权 sudo (Docker/开发服务器设置) |
 

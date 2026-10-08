@@ -1,7 +1,7 @@
 /**
  * Port interfaces — the typed surface that any host process (Electron main,
- * Tauri Rust backend, or local Web fallback) must implement so that the
- * renderer remains framework-agnostic.
+ * or local Web fallback) must implement so that the renderer remains
+ * framework-agnostic.
  */
 
 import type {
@@ -65,7 +65,7 @@ export interface ShellPort {
  *
  * The renderer obtains a Bridge once at boot via `createBridge()` and
  * passes it down through React context so feature code never imports
- * Tauri/Electron APIs directly.
+ * Electron APIs directly.
  */
 export interface Bridge {
   readonly platform: import("./types").PlatformType

@@ -20,7 +20,7 @@ interface BridgeProviderProps {
 
 /**
  * Initialises the platform bridge once at boot and exposes it to the React
- * tree. Feature code calls `useBridge()` instead of importing Tauri/Electron
+ * tree. Feature code calls `useBridge()` instead of importing Electron
  * APIs directly so the same components work across runtimes.
  */
 function BridgeProvider({ children }: BridgeProviderProps) {

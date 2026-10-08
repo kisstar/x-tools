@@ -22,5 +22,3 @@ catalog:
   zustand: ^5.0.0
   electron: ^33.0.0
   electron-builder: ^25.0.0
-  "@tauri-apps/api": ^2.1.0
-  "@tauri-apps/cli": ^2.1.0

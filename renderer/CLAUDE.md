@@ -86,12 +86,11 @@ export { ToolCard }
 ```typescript
 import { createBridge } from '@x-tools/platform-bridge'
 
-const bridge = await createBridge()  // 自动检测：tauri | electron | web
+const bridge = await createBridge()  // 自动检测：electron | web
 bridge.fs.readFile(path)
 ```
 
 - Web 适配器：桩实现或 fetch/WebSocket 连接本地服务器
-- Tauri 适配器：封装 `@tauri-apps/api` 的 invoke/listen
 - Electron 适配器：封装 `window.electronAPI`（preload 暴露）
 
 ## 状态管理

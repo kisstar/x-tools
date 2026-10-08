@@ -10,10 +10,6 @@ import { detectPlatform } from "./detect"
 export async function createBridge(platform?: PlatformType): Promise<Bridge> {
   const detected = platform ?? detectPlatform()
   switch (detected) {
-    case "tauri": {
-      const { createTauriBridge } = await import("./tauri-adapter")
-      return createTauriBridge()
-    }
     case "electron": {
       const { createElectronBridge } = await import("./electron-adapter")
       return createElectronBridge()

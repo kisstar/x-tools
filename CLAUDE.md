@@ -37,7 +37,6 @@ xTools/
 └── docs/              # 架构与 PRD 文档
 ```
 
-> 仓库里仍残留 `hosts/tauri/`（Rust / Tauri 2）—— 它是**待移除项**，不是目标形态的一部分。
 > 目标方案已移出 Rust / Tauri / CLI / MCP（见下）；现状与目标的差异不是 bug，是待迁移项。
 
 `renderer/`、`hosts/electron/` 各有自己的 CLAUDE.md（技术栈、组件规范），
@@ -74,7 +73,7 @@ xTools/
 - **提权语言无关**：判据是「谁以 root 身份执行动作」，绝不 Node-as-root；固定白名单动作，不接受任意 shell。**`shell.elevate` 与 `fsScope: unrestricted` 仅内置插件可申请，第三方声明即加载期拒绝**，不给用户「允许」弹窗（§6.5、§12.3）。
 - 明确不做：Rust / Tauri / CLI / MCP、无后端的纯浏览器降级、账号 / 云端中转 / CRDT·OT、`StatePort`/`RouterPort`/`QueryPort`、插件内再套端口抽象、Module Federation、trpc 式中间件链、中立 IDL；一期不做 wasm runtime / 远程 registry / 签名校验 / 插件间直接依赖 / 插件沙箱（§19）。
 
-目标目录与现状的对应关系：`hosts/electron` 已存在，`hosts/tauri` 待移除。
+目标目录与现状的对应关系：`hosts/electron` 已存在。
 `core/`（TS 能力核心，内含 `kernel` / `channel-server` / `capabilities` / `plugin-host` 四 package）尚未建立，
 能力实现现在还散在 `hosts/electron/src/services/`；`plugins/`、`elevate/` 也还没有。
 `renderer/packages/platform-bridge` 规划更名为 `channel-client`（channel 之上的类型化前端 facade，不再「桥接多个宿主」）。
@@ -137,7 +136,6 @@ xTools/
 | `renderer/packages/platform-bridge/src/web-adapter.ts:25` | 一整套 `notImpl()` reject，方向与目标方案相反（应重写为 WS 客户端） |
 | `renderer/apps/main/src/data/mock-tools.ts`、`NavBar.topItems` | 工具清单与一级导航硬编码，须换成 `viewContainers` / `views` 两级贡献点派生（§14） |
 | `SubNav.categories`、`nav-store.ts:13-15` | 7 条固定分类须**删除**（搬进 `tool-catalog` 插件）；`activeNavId` / `activeCategoryId` 须删除（真源是 URL），`isSubNavCollapsed` 保留（§14.5） |
-| `hosts/tauri/` | 整个 Tauri 宿主是待移除项（§19）——相关 Rust 缺口随宿主一起走，不再单独修 |
 
 阶段 0（修地基：dev.mjs、gitignore、装 ESLint、装 vitest）**当前明确不执行**（§20.1）。
 

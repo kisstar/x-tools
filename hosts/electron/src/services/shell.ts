@@ -6,9 +6,8 @@ import type { ShellExecOptions, ShellExecResult } from "@x-tools/protocol"
  * Switch-Host module to invoke `sudo` / write to /etc/hosts.
  *
  * NOTE: `elevated` is recorded for now but actual privilege elevation must
- * happen via a platform-specific helper (e.g. `sudo-prompt` on Electron, or
- * `tauri-plugin-shell` with a capability declaration). Wire that up when the
- * Switch-Host PRD lands.
+ * happen via a platform-specific helper (e.g. `sudo-prompt` on Electron).
+ * Wire that up when the Switch-Host PRD lands.
  */
 export const shellService = {
   exec(options: ShellExecOptions): Promise<ShellExecResult> {

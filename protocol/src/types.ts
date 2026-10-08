@@ -51,4 +51,4 @@ export interface ShellExecResult {
 export type Unsubscribe = () => void
 export type WatchCallback = (event: FileChangeEvent) => void
 
-export type PlatformType = "web" | "tauri" | "electron"
+export type PlatformType = "web" | "electron"

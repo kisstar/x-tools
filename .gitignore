@@ -14,11 +14,6 @@ dist
 release
 .turbo
 
-# Tauri / Rust
-target/
-Cargo.lock
-hosts/tauri/gen/
-
 # Electron
 hosts/electron/dist
 hosts/electron/release

@@ -10,14 +10,7 @@
   "dependencies": {
     "@x-tools/protocol": "workspace:*"
   },
-  "peerDependencies": {
-    "@tauri-apps/api": "catalog:"
-  },
-  "peerDependenciesMeta": {
-    "@tauri-apps/api": { "optional": true }
-  },
   "devDependencies": {
-    "@tauri-apps/api": "catalog:",
     "typescript": "catalog:"
   }
 }
