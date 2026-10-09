@@ -45,11 +45,14 @@ describe("PluginHost red lines (§12.3)", () => {
 
   it("lets a builtin plugin declare shell.elevate and installs it", () => {
     const host = new PluginHost()
+    // Neutral sample id, not a real business module name: invariant 7's CI
+    // grep for a business-module name under core/ must stay empty even in
+    // test fixtures.
     const record = host.install(
-      manifest({ id: "switch-host", builtin: true, capabilities: [ELEVATE_CAPABILITY] }),
+      manifest({ id: "privileged-builtin", builtin: true, capabilities: [ELEVATE_CAPABILITY] }),
     )
     expect(record.state).toBe("installed")
-    expect(host.declaredCapabilities("switch-host").has(ELEVATE_CAPABILITY)).toBe(true)
+    expect(host.declaredCapabilities("privileged-builtin").has(ELEVATE_CAPABILITY)).toBe(true)
   })
 
   it("installs an ordinary third-party plugin with its declared capabilities", () => {
