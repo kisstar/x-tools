@@ -4,9 +4,3 @@ export * from "./channel-frames"
 export * from "./define-command"
 export * from "./events"
 export * from "./commands/all-commands"
-
-// Legacy Bridge contract — kept exported during the migration (Steps 1-3),
-// removed in Step 4 once channel-client replaces platform-bridge.
-export * from "./channels"
-export * from "./types"
-export * from "./ports"

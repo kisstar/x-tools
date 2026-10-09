@@ -197,6 +197,9 @@ importers:
       '@tanstack/react-router':
         specifier: 'catalog:'
         version: 1.170.7(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@x-tools/channel-client':
+        specifier: workspace:*
+        version: link:../../packages/channel-client
       '@x-tools/design-tokens':
         specifier: workspace:*
         version: link:../../packages/design-tokens
@@ -206,9 +209,6 @@ importers:
       '@x-tools/icons':
         specifier: workspace:*
         version: link:../../packages/icons
-      '@x-tools/platform-bridge':
-        specifier: workspace:*
-        version: link:../../packages/platform-bridge
       '@x-tools/protocol':
         specifier: workspace:*
         version: link:../../../protocol
@@ -256,6 +256,16 @@ importers:
         specifier: 'catalog:'
         version: 6.4.2(@types/node@22.19.19)(jiti@2.7.0)(lightningcss@1.32.0)
 
+  renderer/packages/channel-client:
+    dependencies:
+      '@x-tools/protocol':
+        specifier: workspace:*
+        version: link:../../../protocol
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
   renderer/packages/design-tokens:
     devDependencies:
       typescript:
@@ -286,16 +296,6 @@ importers:
       react:
         specifier: 'catalog:'
         version: 19.2.6
-    devDependencies:
-      typescript:
-        specifier: 'catalog:'
-        version: 5.9.3
-
-  renderer/packages/platform-bridge:
-    dependencies:
-      '@x-tools/protocol':
-        specifier: workspace:*
-        version: link:../../../protocol
     devDependencies:
       typescript:
         specifier: 'catalog:'

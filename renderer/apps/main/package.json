@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@tanstack/react-router": "catalog:",
+    "@x-tools/channel-client": "workspace:*",
     "@x-tools/design-tokens": "workspace:*",
     "@x-tools/i18n": "workspace:*",
     "@x-tools/icons": "workspace:*",
-    "@x-tools/platform-bridge": "workspace:*",
     "@x-tools/protocol": "workspace:*",
     "@x-tools/types": "workspace:*",
     "i18next": "catalog:",

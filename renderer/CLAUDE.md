@@ -25,7 +25,7 @@ renderer/
     ├── design-tokens/     # CSS 自定义属性 + Tailwind 预设
     ├── i18n/              # i18next 配置 + 语言包加载
     ├── icons/             # 图标库封装（Lucide）
-    ├── platform-bridge/   # BridgePort 运行时检测 + 适配器
+    ├── channel-client/    # channel RPC 之上的类型化前端 facade（ipc / ws 两条传输）
     └── types/             # 共享 TypeScript 接口
 ```
 
@@ -79,19 +79,19 @@ export { ToolCard }
 - 禁止使用 Tailwind 任意值（`bg-[#xxx]`）— 缺少令牌时，添加到 `design-tokens`
 - 暗色模式通过 `<html>` 上的 `data-theme="dark"` 属性切换，令牌自动适配
 
-## 平台桥接
+## channel 客户端
 
-`@x-tools/platform-bridge` 检测运行时并提供正确的适配器：
+`@x-tools/channel-client` 是 channel RPC 之上唯一的前端 facade：选中运行时真正具备的传输（Electron preload 在则走 ipc，否则读 switch-host 注入的 ws bootstrap），包成一个 `ChannelClient`。
 
 ```typescript
-import { createBridge } from '@x-tools/platform-bridge'
+import { connectChannel } from '@x-tools/channel-client'
 
-const bridge = await createBridge()  // 自动检测：electron | web
-bridge.fs.readFile(path)
+const client = await connectChannel()  // 自动选 ipc / ws，调用方无感知
+const value = await client.call(commandId(STORAGE_GET), { key })
 ```
 
-- Web 适配器：桩实现或 fetch/WebSocket 连接本地服务器
-- Electron 适配器：封装 `window.electronAPI`（preload 暴露）
+- channel 层之上 ipc 与 ws 完全同形（不变式 4）：业务代码只拿到 `ChannelClient`，永不感知宿主（不变式 1）。
+- 无宿主的纯浏览器页面（未经 switch-host 拉起）`connectChannel` 会抛错，`ChannelProvider` 保持 `ready:false`——不做无后端降级（§19）。
 
 ## 状态管理
 
