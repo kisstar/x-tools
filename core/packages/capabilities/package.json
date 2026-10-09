@@ -1,18 +1,20 @@
 {
-  "name": "@x-tools/core",
+  "name": "@x-tools/capabilities",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/create-channel-server.ts"
+    "./capability": "./src/capability.ts",
+    "./capability-registry": "./src/capability-registry.ts",
+    "./fs-handlers": "./src/os-primitives/fs-handlers.ts",
+    "./shell-handlers": "./src/os-primitives/shell-handlers.ts",
+    "./storage-handlers": "./src/os-primitives/storage-handlers.ts"
   },
   "files": ["src"],
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@x-tools/capabilities": "workspace:*",
-    "@x-tools/channel-server": "workspace:*",
     "@x-tools/kernel": "workspace:*",
     "@x-tools/protocol": "workspace:*"
   },

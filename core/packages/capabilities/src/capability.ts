@@ -6,7 +6,7 @@
  * `limits` surfaces honest ceilings instead of silent degradation (invariant 6).
  */
 
-import type { SessionInfo } from "../kernel/session-registry"
+import type { SessionInfo } from "@x-tools/kernel/session-registry"
 
 export type CapabilityUnavailableReason =
   | "not-implemented"

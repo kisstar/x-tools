@@ -24,9 +24,9 @@ import type {
 } from "@x-tools/protocol"
 import { ChannelException, commandId } from "@x-tools/protocol"
 
-import type { CapabilityRegistry } from "../capabilities/capability-registry"
-import type { EventBus } from "../kernel/event-bus"
-import type { EventSink, SessionInfo, SessionRegistry } from "../kernel/session-registry"
+import type { CapabilityRegistry } from "@x-tools/capabilities/capability-registry"
+import type { EventBus } from "@x-tools/kernel/event-bus"
+import type { EventSink, SessionInfo, SessionRegistry } from "@x-tools/kernel/session-registry"
 
 export type Handler = (ctx: CallContext, args: unknown) => Promise<unknown>
 

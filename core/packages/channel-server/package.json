@@ -1,10 +1,10 @@
 {
-  "name": "@x-tools/core",
+  "name": "@x-tools/channel-server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/create-channel-server.ts"
+    "./channel-server": "./src/channel-server.ts"
   },
   "files": ["src"],
   "scripts": {
@@ -12,12 +12,11 @@
   },
   "dependencies": {
     "@x-tools/capabilities": "workspace:*",
-    "@x-tools/channel-server": "workspace:*",
     "@x-tools/kernel": "workspace:*",
-    "@x-tools/protocol": "workspace:*"
+    "@x-tools/protocol": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
     "typescript": "catalog:"
   }
 }

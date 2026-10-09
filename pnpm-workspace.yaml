@@ -3,6 +3,7 @@ packages:
   - renderer/packages/*
   - hosts/electron
   - core
+  - core/packages/*
   - protocol
 
 catalog:

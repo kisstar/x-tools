@@ -5,7 +5,7 @@
  * consumer; the registry's evaluator is what it will call).
  */
 
-import type { SessionInfo } from "../kernel/session-registry"
+import type { SessionInfo } from "@x-tools/kernel/session-registry"
 import type { Capability, CapabilitySnapshot } from "./capability"
 
 export class CapabilityRegistry {

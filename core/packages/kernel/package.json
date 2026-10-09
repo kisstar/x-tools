@@ -1,23 +1,20 @@
 {
-  "name": "@x-tools/core",
+  "name": "@x-tools/kernel",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/create-channel-server.ts"
+    "./event-bus": "./src/event-bus.ts",
+    "./session-registry": "./src/session-registry.ts"
   },
   "files": ["src"],
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@x-tools/capabilities": "workspace:*",
-    "@x-tools/channel-server": "workspace:*",
-    "@x-tools/kernel": "workspace:*",
     "@x-tools/protocol": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
     "typescript": "catalog:"
   }
 }

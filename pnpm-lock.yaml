@@ -77,16 +77,73 @@ importers:
 
   core:
     dependencies:
+      '@x-tools/capabilities':
+        specifier: workspace:*
+        version: link:packages/capabilities
+      '@x-tools/channel-server':
+        specifier: workspace:*
+        version: link:packages/channel-server
+      '@x-tools/kernel':
+        specifier: workspace:*
+        version: link:packages/kernel
       '@x-tools/protocol':
         specifier: workspace:*
         version: link:../protocol
-      zod:
-        specifier: 'catalog:'
-        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
         version: 22.19.19
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  core/packages/capabilities:
+    dependencies:
+      '@x-tools/kernel':
+        specifier: workspace:*
+        version: link:../kernel
+      '@x-tools/protocol':
+        specifier: workspace:*
+        version: link:../../../protocol
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.19
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  core/packages/channel-server:
+    dependencies:
+      '@x-tools/capabilities':
+        specifier: workspace:*
+        version: link:../capabilities
+      '@x-tools/kernel':
+        specifier: workspace:*
+        version: link:../kernel
+      '@x-tools/protocol':
+        specifier: workspace:*
+        version: link:../../../protocol
+      zod:
+        specifier: 'catalog:'
+        version: 3.25.76
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  core/packages/kernel:
+    dependencies:
+      '@x-tools/protocol':
+        specifier: workspace:*
+        version: link:../../../protocol
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  core/packages/plugin-host:
+    devDependencies:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

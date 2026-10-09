@@ -29,20 +29,20 @@ import {
   STORAGE_SET,
 } from "@x-tools/protocol"
 
-import { CapabilityRegistry } from "./capabilities/capability-registry"
-import type { AuditEntry } from "./channel-server/channel-server"
-import { ChannelServer } from "./channel-server/channel-server"
-import { EventBus } from "./kernel/event-bus"
-import { SessionRegistry } from "./kernel/session-registry"
-import { makeFsHandlers } from "./os-primitives/fs-handlers"
-import { makeShellHandlers } from "./os-primitives/shell-handlers"
-import { makeStorageHandlers } from "./os-primitives/storage-handlers"
+import { CapabilityRegistry } from "@x-tools/capabilities/capability-registry"
+import { makeFsHandlers } from "@x-tools/capabilities/fs-handlers"
+import { makeShellHandlers } from "@x-tools/capabilities/shell-handlers"
+import { makeStorageHandlers } from "@x-tools/capabilities/storage-handlers"
+import type { AuditEntry } from "@x-tools/channel-server/channel-server"
+import { ChannelServer } from "@x-tools/channel-server/channel-server"
+import { EventBus } from "@x-tools/kernel/event-bus"
+import { SessionRegistry } from "@x-tools/kernel/session-registry"
 
-export type { AuditEntry } from "./channel-server/channel-server"
-export { ChannelServer } from "./channel-server/channel-server"
-export type { InvalidationEvent } from "./kernel/event-bus"
-export type { EventSink, SessionInfo } from "./kernel/session-registry"
-export type { Capability, CapabilitySnapshot } from "./capabilities/capability"
+export type { AuditEntry } from "@x-tools/channel-server/channel-server"
+export { ChannelServer } from "@x-tools/channel-server/channel-server"
+export type { InvalidationEvent } from "@x-tools/kernel/event-bus"
+export type { EventSink, SessionInfo } from "@x-tools/kernel/session-registry"
+export type { Capability, CapabilitySnapshot } from "@x-tools/capabilities/capability"
 
 export interface ChannelServerDeps {
   /** Where storage persists `preferences.json`; host injects it (invariant 3). */
