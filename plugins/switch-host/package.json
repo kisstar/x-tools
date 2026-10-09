@@ -1,0 +1,19 @@
+{
+  "name": "@x-tools/switch-host",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./manifest": "./manifest.ts"
+  },
+  "files": ["manifest.ts", "model", "data", "ui", "node"],
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@x-tools/protocol": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

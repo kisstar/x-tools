@@ -5,6 +5,7 @@ packages:
   - core
   - core/packages/*
   - protocol
+  - plugins/*
 
 catalog:
   "@tanstack/react-router": ^1.120.0
