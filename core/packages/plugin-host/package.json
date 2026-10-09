@@ -4,11 +4,15 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./plugin-host": "./src/plugin-host.ts"
+    "./plugin-host": "./src/plugin-host.ts",
+    "./plugin-context": "./src/plugin-context.ts"
   },
   "files": ["src"],
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@x-tools/protocol": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:"
