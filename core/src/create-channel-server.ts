@@ -45,6 +45,8 @@ export type { ConnectionOptions } from "@x-tools/channel-server/channel-connecti
 export type { InvalidationEvent } from "@x-tools/kernel/event-bus"
 export type { EventSink, SessionInfo } from "@x-tools/kernel/session-registry"
 export type { Capability, CapabilitySnapshot } from "@x-tools/capabilities/capability"
+export { ELEVATE_CAPABILITY, PluginHost } from "@x-tools/plugin-host/plugin-host"
+export type { PluginManifest, PluginRecord, PluginState } from "@x-tools/plugin-host/plugin-host"
 
 export interface ChannelServerDeps {
   /** Where storage persists `preferences.json`; host injects it (invariant 3). */

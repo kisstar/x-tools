@@ -86,6 +86,9 @@ importers:
       '@x-tools/kernel':
         specifier: workspace:*
         version: link:packages/kernel
+      '@x-tools/plugin-host':
+        specifier: workspace:*
+        version: link:packages/plugin-host
       '@x-tools/protocol':
         specifier: workspace:*
         version: link:../protocol

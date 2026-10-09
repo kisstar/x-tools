@@ -6,6 +6,8 @@
  * OS-level primitive the host injects.
  */
 
+import { join } from "node:path"
+
 import { Notification, type BrowserWindow } from "electron"
 
 import type { NotificationShowArgs } from "@x-tools/protocol"
@@ -13,10 +15,12 @@ import type { NotificationShowArgs } from "@x-tools/protocol"
 import {
   attachConnection,
   createChannelServer,
+  PluginHost,
   type ChannelServer,
   type SessionInfo,
 } from "@x-tools/core"
 
+import { createAuditSink } from "./audit-sink"
 import { createIpcProtocol } from "./transports/ipc-transport"
 import { createWsHost, type WsHostHandle } from "./transports/ws-transport"
 
@@ -49,11 +53,25 @@ export interface ChannelHost {
 }
 
 export function createChannelHost(storageBaseDir: string): ChannelHost {
+  // The plugin host backs gate ② (§6.2): every plugin-origin call is checked
+  // against the capabilities its manifest declared. Empty until a plugin is
+  // installed — plugin discovery / install is phase 2 (§20.3), so with no
+  // plugins loaded every plugin-origin call still gets FORBIDDEN, which is the
+  // honest default.
+  const pluginHost = new PluginHost()
+
+  // §6.4: one JSONL line per gate-passing call, under the same base dir as
+  // storage. Both transports share this one server, so ipc and ws audit through
+  // the same sink. ponytail: fd lives for the process; OS flushes on exit, so
+  // no close() wiring until the host grows a real shutdown path.
+  const audit = createAuditSink(join(storageBaseDir, "audit.log"))
+
   const server: ChannelServer = createChannelServer({
     storageBaseDir,
     notify: showNotification,
+    declaredCapabilities: (id) => pluginHost.declaredCapabilities(id),
+    onAudit: audit.record,
   })
-  // ponytail: no onAudit sink yet — audit log + elevation land in a later step.
 
   let wsHandle: WsHostHandle | null = null
 

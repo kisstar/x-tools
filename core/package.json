@@ -14,6 +14,7 @@
     "@x-tools/capabilities": "workspace:*",
     "@x-tools/channel-server": "workspace:*",
     "@x-tools/kernel": "workspace:*",
+    "@x-tools/plugin-host": "workspace:*",
     "@x-tools/protocol": "workspace:*"
   },
   "devDependencies": {
