@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@x-tools/core": "workspace:*",
-    "@x-tools/protocol": "workspace:*"
+    "@x-tools/protocol": "workspace:*",
+    "ws": "8.22.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/ws": "8.18.2",
     "electron": "catalog:",
     "electron-builder": "catalog:",
     "electron-vite": "^5.0.0",
@@ -39,18 +41,39 @@
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [
-        { "target": "dmg", "arch": ["arm64", "x64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
       ]
     },
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "linux": {
       "target": [
-        { "target": "AppImage", "arch": ["x64"] },
-        { "target": "deb", "arch": ["x64"] }
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "category": "Development"
     }
