@@ -7,13 +7,12 @@
  * compare whether it missed an invalidation and must refetch (§8.3).
  */
 
+import type { InvalidationEvent } from "@x-tools/protocol"
 import type { SessionRegistry } from "./session-registry"
 
-export interface InvalidationEvent {
-  readonly topic: string
-  readonly revision: number
-  readonly scope?: string
-}
+// Wire shape lives in protocol (both server and client reconstruct it); the bus
+// is the sole producer. Re-exported so existing `./event-bus` importers hold.
+export type { InvalidationEvent }
 
 export interface PublishInput {
   readonly topic: string

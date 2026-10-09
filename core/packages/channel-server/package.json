@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./channel-server": "./src/channel-server.ts"
+    "./channel-server": "./src/channel-server.ts",
+    "./channel-connection": "./src/channel-connection.ts"
   },
   "files": ["src"],
   "scripts": {

@@ -40,6 +40,8 @@ import { SessionRegistry } from "@x-tools/kernel/session-registry"
 
 export type { AuditEntry } from "@x-tools/channel-server/channel-server"
 export { ChannelServer } from "@x-tools/channel-server/channel-server"
+export { attachConnection } from "@x-tools/channel-server/channel-connection"
+export type { ConnectionOptions } from "@x-tools/channel-server/channel-connection"
 export type { InvalidationEvent } from "@x-tools/kernel/event-bus"
 export type { EventSink, SessionInfo } from "@x-tools/kernel/session-registry"
 export type { Capability, CapabilitySnapshot } from "@x-tools/capabilities/capability"
