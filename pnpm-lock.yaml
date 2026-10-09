@@ -191,6 +191,9 @@ importers:
 
   plugins/switch-host:
     dependencies:
+      '@x-tools/channel-client':
+        specifier: workspace:*
+        version: link:../../renderer/packages/channel-client
       '@x-tools/protocol':
         specifier: workspace:*
         version: link:../../protocol

@@ -46,4 +46,49 @@ export const SWITCH_HOST_SET_ACTIVE = defineCommand({
   emits: [SWITCH_HOST_PROFILES_CHANGED],
 })
 
-export const SWITCH_HOST_COMMANDS = [SWITCH_HOST_SET_ACTIVE] as const
+/**
+ * Wire shape of a stored host group (§13.1 choice: a builtin plugin's schema is
+ * compiled into protocol). Structurally mirrors the plugin's `model/` HostGroup,
+ * but this is the SOURCE OF TRUTH for the wire — the plugin's `data/` layer maps
+ * wire→model so the model stays zod-free (§14.1). Optionals are `.optional()`
+ * (absent vs present), never nullable; timestamps are epoch ms.
+ */
+export const HostEntryWire = z.object({
+  id: z.string().min(1),
+  ip: z.string().min(1),
+  domain: z.string().min(1),
+  enabled: z.boolean(),
+  comment: z.string().optional(),
+})
+export type HostEntryWire = z.infer<typeof HostEntryWire>
+
+export const HostGroupWire = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional(),
+  entries: z.array(HostEntryWire),
+  enabled: z.boolean(),
+  pinned: z.boolean(),
+  autoEnable: z.boolean(),
+  readOnly: z.boolean(),
+  color: z.string().optional(),
+  createdAt: z.number(),
+  updatedAt: z.number(),
+})
+export type HostGroupWire = z.infer<typeof HostGroupWire>
+
+/**
+ * Read every stored group (managed + the derived "系统（未管理）" view). No args;
+ * the empty object keeps gate ④ happy (it `safeParse`s the request arg, so a
+ * caller sends `{}`). Pure read → no `emits`; the UI re-queries on the write
+ * command's invalidation, never on this one.
+ */
+export const SWITCH_HOST_LIST_GROUPS = defineCommand({
+  channel: "plugin.switch-host",
+  command: "listGroups",
+  args: z.object({}),
+  result: z.array(HostGroupWire),
+  capability: "switch-host.read",
+})
+
+export const SWITCH_HOST_COMMANDS = [SWITCH_HOST_SET_ACTIVE, SWITCH_HOST_LIST_GROUPS] as const
