@@ -1,7 +1,10 @@
 import { app, BrowserWindow, shell } from "electron"
 import path from "node:path"
 
-const DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL ?? "http://localhost:5173"
+const DEV_SERVER_URL =
+  process.env.ELECTRON_RENDERER_URL ??
+  process.env.VITE_DEV_SERVER_URL ??
+  "http://localhost:5173"
 const isDev = !app.isPackaged
 
 /**
@@ -20,7 +23,7 @@ export function createMainWindow(): BrowserWindow {
     autoHideMenuBar: true,
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "../preload/index.js"),
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
@@ -42,7 +45,7 @@ export function createMainWindow(): BrowserWindow {
   } else {
     const indexHtml = path.resolve(
       __dirname,
-      "../../../renderer/apps/main/dist/index.html",
+      "../../../../renderer/apps/main/dist/index.html",
     )
     void win.loadFile(indexHtml)
   }

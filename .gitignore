@@ -11,11 +11,13 @@ node_modules
 
 # build output
 dist
+out
 release
 .turbo
 
 # Electron
 hosts/electron/dist
+hosts/electron/out
 hosts/electron/release
 
 # AI
