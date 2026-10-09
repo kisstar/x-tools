@@ -8,7 +8,7 @@
     "dev:electron": "pnpm --filter @x-tools/electron dev",
     "build": "pnpm --filter @x-tools/app-main build",
     "build:electron": "pnpm --filter @x-tools/electron build",
-    "typecheck": "tsc --noEmit -p renderer/apps/main/tsconfig.json && pnpm --filter @x-tools/electron typecheck && pnpm --filter @x-tools/protocol typecheck",
+    "typecheck": "tsc --noEmit -p renderer/apps/main/tsconfig.json && pnpm --filter @x-tools/electron typecheck && pnpm --filter @x-tools/core typecheck && pnpm --filter @x-tools/protocol typecheck",
     "preview": "pnpm --filter @x-tools/app-main preview",
     "test": "vitest run"
   },
