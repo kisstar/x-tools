@@ -2,23 +2,29 @@
  * Electron main process entry.
  *
  * Responsibilities:
- *  1. Create the BrowserWindow and load the renderer (Vite dev server in
- *     development; bundled `dist/index.html` in production).
- *  2. Register IPC handlers that implement the @x-tools/protocol port
- *     contract so the renderer can talk to native services through the
- *     `window.electronAPI` preload bridge.
+ *  1. Build the one channel server (the sole backend) and load the renderer
+ *     (Vite dev server in development; bundled `dist/index.html` in production).
+ *  2. Attach a per-window ipc connection so the renderer talks to core over
+ *     channel-RPC frames via the `window.xtools.channel` preload transport.
  */
 
 import { app, BrowserWindow } from "electron"
 import path from "node:path"
-import { registerIpcHandlers } from "./ipc/register"
+import { createChannelHost, type ChannelHost } from "./channel-host"
 import { createMainWindow } from "./window/main-window"
 
 let mainWindow: BrowserWindow | null = null
+let host: ChannelHost | null = null
+
+function openWindow(): BrowserWindow {
+  const win = createMainWindow()
+  host?.attachWindow(win)
+  return win
+}
 
 function bootstrap() {
-  registerIpcHandlers()
-  mainWindow = createMainWindow()
+  host = createChannelHost(app.getPath("userData"))
+  mainWindow = openWindow()
 }
 
 app.whenReady().then(bootstrap)
@@ -29,7 +35,7 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    mainWindow = createMainWindow()
+    mainWindow = openWindow()
   }
 })
 

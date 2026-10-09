@@ -150,6 +150,9 @@ importers:
 
   hosts/electron:
     dependencies:
+      '@x-tools/core':
+        specifier: workspace:*
+        version: link:../../core
       '@x-tools/protocol':
         specifier: workspace:*
         version: link:../../protocol

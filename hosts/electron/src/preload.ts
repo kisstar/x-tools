@@ -1,39 +1,25 @@
 /**
- * Preload script — runs in an isolated context that has Node + Electron APIs
- * but shares the renderer's `window`. Use `contextBridge` to expose ONLY a
- * narrow, typed surface (`window.electronAPI`); never inject `ipcRenderer`
- * itself.
+ * Preload script — runs in an isolated context with Node + Electron APIs but
+ * shares the renderer's `window`. Exposes ONLY the channel-RPC byte transport
+ * (`window.xtools.channel`); the renderer's channel-client (Step 4) owns the
+ * frame codec, preload just carries `Uint8Array` both ways. No per-command
+ * surface and no raw `ipcRenderer` — the renderer never learns it is on ipc
+ * (invariant 1).
  */
 
-import { contextBridge, ipcRenderer } from "electron"
+import { contextBridge, ipcRenderer, type IpcRendererEvent } from "electron"
 
-type Listener = (...args: unknown[]) => void
+import { IPC_CHANNEL_NAME } from "./transports/ipc-channel-name"
 
-const wrappedListeners = new WeakMap<Listener, (...args: unknown[]) => void>()
-
-const electronAPI = {
-  invoke(channel: string, ...args: unknown[]) {
-    return ipcRenderer.invoke(channel, ...args)
+const channel = {
+  post(buffer: Uint8Array): void {
+    ipcRenderer.send(IPC_CHANNEL_NAME, buffer)
   },
-  on(channel: string, listener: Listener) {
-    const wrapped = (_e: unknown, ...args: unknown[]) => listener(...args)
-    wrappedListeners.set(listener, wrapped)
-    ipcRenderer.on(channel, wrapped)
-    return () => {
-      const w = wrappedListeners.get(listener)
-      if (w) ipcRenderer.off(channel, w)
-    }
-  },
-  off(channel: string, listener: Listener) {
-    const w = wrappedListeners.get(listener)
-    if (w) ipcRenderer.off(channel, w)
-  },
-  platform: process.platform,
-  versions: {
-    electron: process.versions.electron ?? "",
-    chrome: process.versions.chrome ?? "",
-    node: process.versions.node ?? "",
+  on(listener: (buffer: Uint8Array) => void): () => void {
+    const wrapped = (_event: IpcRendererEvent, buffer: Uint8Array) => listener(buffer)
+    ipcRenderer.on(IPC_CHANNEL_NAME, wrapped)
+    return () => void ipcRenderer.off(IPC_CHANNEL_NAME, wrapped)
   },
 }
 
-contextBridge.exposeInMainWorld("electronAPI", electronAPI)
+contextBridge.exposeInMainWorld("xtools", { channel })

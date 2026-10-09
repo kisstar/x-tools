@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.main.json"
   },
   "dependencies": {
+    "@x-tools/core": "workspace:*",
     "@x-tools/protocol": "workspace:*"
   },
   "devDependencies": {
