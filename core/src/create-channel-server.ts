@@ -45,8 +45,20 @@ export type { ConnectionOptions } from "@x-tools/channel-server/channel-connecti
 export type { InvalidationEvent } from "@x-tools/kernel/event-bus"
 export type { EventSink, SessionInfo } from "@x-tools/kernel/session-registry"
 export type { Capability, CapabilitySnapshot } from "@x-tools/capabilities/capability"
+export type { CapabilityRegistry } from "@x-tools/capabilities/capability-registry"
 export { ELEVATE_CAPABILITY, PluginHost } from "@x-tools/plugin-host/plugin-host"
 export type { PluginManifest, PluginRecord, PluginState } from "@x-tools/plugin-host/plugin-host"
+
+/**
+ * What the `contribute` hook hands a plugin wirer: the registries a plugin's
+ * capabilities + command handlers hang off. Core exposes the registries but
+ * never names any plugin — the closure (supplied by the host) does, so
+ * invariant 7 (no business-module name appears anywhere under core/) holds.
+ */
+export interface PluginRegistration {
+  readonly server: ChannelServer
+  readonly capabilities: CapabilityRegistry
+}
 
 export interface ChannelServerDeps {
   /** Where storage persists `preferences.json`; host injects it (invariant 3). */
@@ -56,6 +68,13 @@ export interface ChannelServerDeps {
   /** Gate ②: a plugin's manifest-declared capabilities (§6.2). */
   readonly declaredCapabilities?: (pluginId: string | undefined) => ReadonlySet<string>
   readonly onAudit?: (entry: AuditEntry) => void
+  /**
+   * Plugin contribution hook (§9) — run after the OS primitives are registered,
+   * just before the server is returned. The host registers a plugin's
+   * capabilities + handlers through it; core stays free of plugin names
+   * (invariant 7).
+   */
+  readonly contribute?: (reg: PluginRegistration) => void
 }
 
 export function createChannelServer(deps: ChannelServerDeps): ChannelServer {
@@ -112,6 +131,10 @@ export function createChannelServer(deps: ChannelServerDeps): ChannelServer {
   server.register(NOTIFICATION_SHOW, async (_ctx, args) => {
     await deps.notify?.(args)
   })
+
+  // Plugins contribute last, over the same registries (invariant 4: one table).
+  // The closure names the plugin; core does not (invariant 7).
+  deps.contribute?.({ server, capabilities })
 
   return server
 }

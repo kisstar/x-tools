@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./manifest": "./manifest.ts"
+    "./manifest": "./manifest.ts",
+    "./model/host-model": "./model/host-model.ts",
+    "./node/switch-host-node": "./node/switch-host-node.ts"
   },
   "files": ["manifest.ts", "model", "data", "ui", "node"],
   "scripts": {

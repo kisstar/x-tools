@@ -21,6 +21,7 @@ import {
 } from "@x-tools/core"
 
 import { createAuditSink } from "./audit-sink"
+import { contributeSwitchHost } from "./plugins/switch-host-wiring"
 import { createIpcProtocol } from "./transports/ipc-transport"
 import { createWsHost, type WsHostHandle } from "./transports/ws-transport"
 
@@ -71,6 +72,9 @@ export function createChannelHost(storageBaseDir: string): ChannelHost {
     notify: showNotification,
     declaredCapabilities: (id) => pluginHost.declaredCapabilities(id),
     onAudit: audit.record,
+    // switch-host contributes its capabilities + handlers over the shared
+    // registries. The closure names the plugin; core never does (invariant 7).
+    contribute: contributeSwitchHost(storageBaseDir),
   })
 
   let wsHandle: WsHostHandle | null = null

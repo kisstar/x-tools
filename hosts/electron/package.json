@@ -14,6 +14,7 @@
   "dependencies": {
     "@x-tools/core": "workspace:*",
     "@x-tools/protocol": "workspace:*",
+    "@x-tools/switch-host": "workspace:*",
     "ws": "8.22.0"
   },
   "devDependencies": {
