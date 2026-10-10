@@ -27,7 +27,7 @@ import {
   SWITCH_HOST_LIST_GROUPS,
   SWITCH_HOST_SET_ACTIVE,
 } from "@x-tools/protocol"
-import type { PluginRegistration } from "@x-tools/core"
+import type { PluginRegistration } from "@x-tools/bootstrap"
 
 import type { HostGroup } from "@x-tools/switch-host/model/host-model"
 import {

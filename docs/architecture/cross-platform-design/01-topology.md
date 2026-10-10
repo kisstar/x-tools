@@ -39,13 +39,13 @@
 ```
 xTools/
 ├── protocol/          # @x-tools/protocol —— channel 契约 + zod schema 真源（common 层）
-├── core/              # @x-tools/core —— 能力实现，唯一消费者是 Electron main（node 层）
-│   └── packages/
-│       ├── kernel/            # DI 容器 · 事件总线 · 生命周期
-│       ├── channel-server/    # 路由 + schema 校验 + 审计（唯一信任边界）
-│       ├── capabilities/      # fs / shell / storage / net / path-guard
-│       └── plugin-host/       # 发现 / 装载 / 卸载 / effect 回收 / 权限闸门
-├── plugins/           # 业务模块，一切皆插件（内 ui/model/data/backend 四层，§14、§20.1）
+├── core/              # 能力实现容器（node 层），唯一消费者是 Electron main；自身是纯容器（无 package.json）
+│   ├── bootstrap/      # @x-tools/bootstrap —— 组合根 createChannelServer（§9），core 唯一公共入口
+│   ├── kernel/         # DI 容器 · 事件总线 · 生命周期
+│   ├── channel-server/ # 路由 + schema 校验 + 审计（唯一信任边界）
+│   ├── capabilities/   # fs / shell / storage / net / path-guard
+│   └── plugin-host/    # 发现 / 装载 / 卸载 / effect 回收 / 权限闸门
+├── plugins/           # 业务模块，一切皆插件（内 ui/model/data/node 四层，§14、§20.1）
 ├── hosts/
 │   └── electron/      # @x-tools/electron —— main + preload + ipc/ws 传输壳
 ├── renderer/          # 前端 monorepo（React 19 + Vite 6 + Tailwind 4 + TanStack Router）
@@ -54,7 +54,7 @@ xTools/
 └── docs/
 ```
 
-**本次相对旧版的删减**：`core-rs/`、`elevate-rs/`、`hosts/tauri/`、`hosts/cli/`、顶层 cargo workspace 全部移除。`core-ts/` 更名为 `core/`（不再需要用语言区分，只有一份）。`platform-bridge` 更名为 `channel-client`——它不再「桥接多个宿主」，只是 channel 之上的类型化前端 facade。`elevate/` 保留但语言无关（§6.5）。
+**本次相对旧版的删减**：`core-rs/`、`elevate-rs/`、`hosts/tauri/`、`hosts/cli/`、顶层 cargo workspace 全部移除。`core-ts/` 更名为 `core/`（不再需要用语言区分，只有一份），且 `core/` 自身是**纯容器**（无 package.json）；因只含 node 层包、没有 `apps/`，不再套 `packages/` 子层，五个包直接平铺在 `core/*`（对齐 `hosts/*`、`plugins/*`）。组合根不叫 `core`——内核真正的核心是 `kernel`——而是 `@x-tools/bootstrap`（`createChannelServer`，§9），落在 `core/bootstrap`，与 kernel/channel-server/capabilities/plugin-host 平级。`platform-bridge` 更名为 `channel-client`——它不再「桥接多个宿主」，只是 channel 之上的类型化前端 facade。`elevate/` 保留但语言无关（§6.5）。
 
 分层纪律（layer 表见 §3.1）**由 ESLint `no-restricted-paths` 强制**，不靠人守。ESLint 一期要装（§20 阶段 0）。
 
@@ -66,9 +66,10 @@ xTools/
 | `browser`（renderer） | `common` | `node:*`、electron API、`renderer/apps/*`（packages 侧） |
 | `node`（core） | `common` | electron、DOM |
 | `electron-main`（hosts/electron） | `common`、`node` | DOM、renderer 代码 |
-| `plugin-model`（`plugins/*/model`） | 无 | React、channel client、`node:*`、同插件的 `ui/` 与 `data/` |
-| `plugin-ui`（`plugins/*/ui`） | `common`、同插件 `model/` `data/` | channel client 直连（必须经 `data/`） |
-| `plugin-data`（`plugins/*/data`） | `common`、同插件 `model/`、channel client | 同插件的 `ui/` |
+| `plugin-model`（`plugins/*/model`） | 无 | React、channel client、`node:*`、同插件的 `ui/`、`data/` 与 `node/` |
+| `plugin-ui`（`plugins/*/ui`） | `common`、同插件 `model/` `data/` | channel client 直连（必须经 `data/`）、同插件 `node/` |
+| `plugin-data`（`plugins/*/data`） | `common`、同插件 `model/`、channel client | 同插件的 `ui/` 与 `node/` |
+| `plugin-node`（`plugins/*/node`） | `common`、同插件 `model/` | React、channel client/server、`node:*`（OS 原语经 deps 注入）、同插件的 `ui/` 与 `data/` |
 
 ## 4. 核心不变式
 

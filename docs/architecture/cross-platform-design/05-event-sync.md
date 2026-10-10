@@ -23,13 +23,13 @@
 主进程持有两个内核组件：
 
 ```ts
-// core/packages/kernel/session-registry.ts
+// core/kernel/session-registry.ts
 export interface SessionRegistry {
   readonly register: (session: SessionInfo, sink: EventSink) => Disposable;  // 连接建立时登记
   readonly broadcast: (event: InvalidationEvent) => void;                    // 发给所有在册会话
 }
 
-// core/packages/kernel/event-bus.ts
+// core/kernel/event-bus.ts
 export interface EventBus {
   readonly publish: (event: InvalidationEvent) => void;   // 仅内核 / channel wrapper 可调（§8.4）
 }

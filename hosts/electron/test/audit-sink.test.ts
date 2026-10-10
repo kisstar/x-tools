@@ -9,7 +9,7 @@ import { mkdtemp, readFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 
-import type { AuditEntry } from "@x-tools/core"
+import type { AuditEntry } from "@x-tools/bootstrap"
 import { describe, expect, it } from "vitest"
 
 import { createAuditSink } from "../src/audit-sink"

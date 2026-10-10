@@ -14,7 +14,7 @@ import type { Socket } from "node:net"
 import { WebSocketServer, WebSocket, type RawData } from "ws"
 
 import type { Disposable, IMessagePassingProtocol } from "@x-tools/protocol"
-import { attachConnection, type ChannelServer, type SessionInfo } from "@x-tools/core"
+import { attachConnection, type ChannelServer, type SessionInfo } from "@x-tools/bootstrap"
 
 import { isOriginAllowed, isSessionTokenValid, mintSessionToken, persistSessionToken } from "./ws-security"
 

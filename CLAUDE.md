@@ -74,8 +74,7 @@ xTools/
 - 明确不做：Rust / Tauri / CLI / MCP、无后端的纯浏览器降级、账号 / 云端中转 / CRDT·OT、`StatePort`/`RouterPort`/`QueryPort`、插件内再套端口抽象、Module Federation、trpc 式中间件链、中立 IDL；一期不做 wasm runtime / 远程 registry / 签名校验 / 插件间直接依赖 / 插件沙箱（§19）。
 
 目标目录与现状的对应关系：`hosts/electron` 已存在。
-`core/`（TS 能力核心，内含 `kernel` / `channel-server` / `capabilities` / `plugin-host` 四 package）尚未建立，
-能力实现现在还散在 `hosts/electron/src/services/`；`plugins/`、`elevate/` 也还没有。
+`core/` 已建立且为纯容器（无 package.json）：五个 node 层包平铺在 `core/*`——组合根 `bootstrap`（`@x-tools/bootstrap`，`createChannelServer`）与 `kernel` / `channel-server` / `capabilities` / `plugin-host` 平级。`plugins/switch-host` 已存在（宿主侧接线在 `hosts/electron/src/plugins/`）；`elevate/` 还没有。
 `renderer/packages/platform-bridge` 规划更名为 `channel-client`（channel 之上的类型化前端 facade，不再「桥接多个宿主」）。
 
 ## 核心不变式（改动必须守住）
@@ -97,9 +96,10 @@ xTools/
 | `browser`（renderer） | `common` | `node:*`、electron API、`renderer/apps/*`（packages 侧） |
 | `node`（core） | `common` | electron、DOM |
 | `electron-main`（hosts/electron） | `common`、`node` | DOM、renderer 代码 |
-| `plugin-model`（`plugins/*/model`） | 无 | React、channel client、`node:*`、同插件的 `ui/` 与 `data/` |
-| `plugin-ui`（`plugins/*/ui`） | `common`、同插件 `model/` `data/` | channel client 直连（必须经 `data/`） |
-| `plugin-data`（`plugins/*/data`） | `common`、同插件 `model/`、channel client | 同插件的 `ui/` |
+| `plugin-model`（`plugins/*/model`） | 无 | React、channel client、`node:*`、同插件的 `ui/`、`data/` 与 `node/` |
+| `plugin-ui`（`plugins/*/ui`） | `common`、同插件 `model/` `data/` | channel client 直连（必须经 `data/`）、同插件 `node/` |
+| `plugin-data`（`plugins/*/data`） | `common`、同插件 `model/`、channel client | 同插件的 `ui/` 与 `node/` |
+| `plugin-node`（`plugins/*/node`） | `common`、同插件 `model/` | React、channel client/server、`node:*`（OS 原语经 deps 注入）、同插件的 `ui/` 与 `data/` |
 
 - **`protocol/` 的规则**：不是「零运行时依赖」，而是「**渲染进程侧零运行时开销**」——允许依赖 zod 作为 schema 真源，渲染侧只 `import type`，在 `verbatimModuleSyntax` 下被完全擦除（§5.4）。
 - 平台适配器只实现契约接口，不含应用逻辑。

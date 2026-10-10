@@ -2,8 +2,7 @@ packages:
   - renderer/apps/*
   - renderer/packages/*
   - hosts/electron
-  - core
-  - core/packages/*
+  - core/*
   - protocol
   - plugins/*
 

@@ -12,7 +12,7 @@ import { defineConfig, externalizeDepsPlugin } from "electron-vite"
  * `externalizeDepsPlugin` keeps third-party `dependencies` external (not
  * bundled); `@x-tools/*` are excluded so they ARE bundled from source.
  */
-const bundleWorkspace = { exclude: ["@x-tools/protocol", "@x-tools/core"] }
+const bundleWorkspace = { exclude: ["@x-tools/protocol", "@x-tools/bootstrap"] }
 
 export default defineConfig({
   main: {

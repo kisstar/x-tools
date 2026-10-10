@@ -18,7 +18,7 @@ import {
   PluginHost,
   type ChannelServer,
   type SessionInfo,
-} from "@x-tools/core"
+} from "@x-tools/bootstrap"
 
 import { createAuditSink } from "./audit-sink"
 import { contributeSwitchHost } from "./plugins/switch-host-wiring"

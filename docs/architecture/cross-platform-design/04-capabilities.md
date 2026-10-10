@@ -13,7 +13,7 @@
 capability 是「一件底层能力」的声明式描述——不是函数，是元数据。channel 的 handler 执行要靠它放行（§6.1 第②③关），UI 决定「画成可用还是置灰」也靠它。
 
 ```ts
-// core/packages/capabilities/registry.ts
+// core/capabilities/registry.ts
 export interface Capability {
   readonly id: string;                    // 'fs.read' / 'shell.exec' / 'net.fetch' ...
   readonly available: (session: SessionInfo) => boolean;   // 按会话求值（§7.3）

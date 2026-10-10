@@ -13,7 +13,7 @@
 
 import { createWriteStream, type WriteStream } from "node:fs"
 
-import type { AuditEntry } from "@x-tools/core"
+import type { AuditEntry } from "@x-tools/bootstrap"
 
 export interface AuditSink {
   /** Append one audit entry as a JSONL line; fire-and-forget, never throws. */

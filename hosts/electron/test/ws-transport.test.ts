@@ -10,7 +10,7 @@ import { tmpdir } from "node:os"
 import { join } from "node:path"
 
 import { WebSocket } from "ws"
-import { createChannelServer, type ChannelServer } from "@x-tools/core"
+import { createChannelServer, type ChannelServer } from "@x-tools/bootstrap"
 import { commandId, STORAGE_GET, STORAGE_SET, type ServerFrame } from "@x-tools/protocol"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
