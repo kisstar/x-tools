@@ -6,6 +6,8 @@
   "exports": {
     "./manifest": "./manifest.ts",
     "./model/host-model": "./model/host-model.ts",
+    "./data/switch-host-data": "./data/switch-host-data.ts",
+    "./ui/switch-host-editor": "./ui/SwitchHostEditor.tsx",
     "./node/switch-host-node": "./node/switch-host-node.ts"
   },
   "files": ["manifest.ts", "model", "data", "ui", "node"],
@@ -16,7 +18,12 @@
     "@x-tools/channel-client": "workspace:*",
     "@x-tools/protocol": "workspace:*"
   },
+  "peerDependencies": {
+    "react": "catalog:"
+  },
   "devDependencies": {
+    "@types/react": "catalog:",
+    "react": "catalog:",
     "typescript": "catalog:"
   }
 }
